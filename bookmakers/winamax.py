@@ -8,11 +8,29 @@ import re
 
 
 
+################################################################################################################################################################
+                            #Globals variables#
 
 path_driver = r'C:\Users\kerac\Documents\Tools\drivers\phantomjs.exe'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 url = "https://www.winamax.fr/paris-sportifs/sports/1/7/4"
 
+################################################################################################################################################################
+                                #Fonctions utiles#
+
+def get_page(url):
+    #Make request
+    res = requests.get(url, headers=headers)
+    return res.text
+
+def get_json(url_match):
+    html = get_page(url_match)
+    split1 = html.split("var PRELOADED_STATE =")[1]
+    split2 = split1.split(";</script>")[0]
+    return json.loads(split2)
+
+################################################################################################################################################################
+                                #Fonctions pricipales#
 
 def LeagueLinksScrap():
     session = HTMLSession()
@@ -27,8 +45,6 @@ def LeagueLinksScrap():
             links.append(str)
     session.close()
     return links
-
-
 
 def MatchsLinksScrap():
     session = HTMLSession()
@@ -45,16 +61,6 @@ def MatchsLinksScrap():
     return links
     
 
-def get_page(url):
-    #Make request
-    res = requests.get(url, headers=headers)
-    return res.text
-
-def get_json(url_match):
-    html = get_page(url_match)
-    split1 = html.split("var PRELOADED_STATE =")[1]
-    split2 = split1.split(";</script>")[0]
-    return json.loads(split2)
 
 def build_match(url_match):
     json = get_json(url_match)
@@ -82,9 +88,7 @@ def build_match(url_match):
     return match
 
 
-
-
-def get_league(url):
+def get_league_matches(url):
     matches = []
     links = MatchsLinksScrap()
     for link in links:
@@ -93,7 +97,9 @@ def get_league(url):
         matches.append(match)
     return matches
 
+################################################################################################################################################################
 
-print(get_league(url))
+
+print(get_league_matches(url))
 
         

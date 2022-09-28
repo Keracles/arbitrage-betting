@@ -1,3 +1,4 @@
+from distutils.command.build_clib import build_clib
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -5,11 +6,27 @@ from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
 
+
+################################################################################################################################################################
+                            #Globals variables#
+                            
 url = "https://www.betclic.fr/football-s1/ligue-1-uber-eats-c4/rennes-nantes-m3001509981"
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 
+################################################################################################################################################################
+                                #Fonctions utiles#
 
-def LinksScrap():
+def get_page():
+    session = HTMLSession()
+    r = session.get(url)
+    r.html.render(scrolldown=1)
+    soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
+    return soup
+
+################################################################################################################################################################
+                                #Fonctions pricipales#
+
+def MatchesLinksScrap():
     session = HTMLSession()
     r = session.get(url)
     r.html.render(sleep=1, keep_page=True, scrolldown=1)
@@ -23,15 +40,7 @@ def LinksScrap():
     session.close()
     return links
 
-
-def get_page():
-    session = HTMLSession()
-    r = session.get(url)
-    r.html.render(scrolldown=1)
-    soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
-    return soup
-
-def get_games():
+def build_match():
     soup = get_page()
     paris = soup.find_all("sports-markets-single-market")
     for parie in paris :
@@ -47,5 +56,6 @@ def get_games():
                 print(odd)
     return
 
+################################################################################################################################################################
 
-get_games()
+build_match()
