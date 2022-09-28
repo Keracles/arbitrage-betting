@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+from Important_Class import Match
 from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
@@ -13,7 +14,23 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 url = "https://www.winamax.fr/paris-sportifs/sports/1/7/4"
 
 
-def LinksScrap():
+def LeagueLinksScrap():
+    session = HTMLSession()
+    r = session.get(url)
+    r.html.render(sleep=1, keep_page=True, scrolldown=1)
+    #HTML Parser
+    links = []
+    motif = re.compile("/paris-sportifs/sports/1/7")
+    for str in r.html.links :
+        test = motif.search(str)
+        if test :
+            links.append(str)
+    session.close()
+    return links
+
+
+
+def MatchsLinksScrap():
     session = HTMLSession()
     r = session.get(url)
     r.html.render(sleep=1, keep_page=True, scrolldown=1)
@@ -24,6 +41,7 @@ def LinksScrap():
         test = motif.search(str)
         if test :
             links.append(str)
+    session.close()
     return links
     
 
@@ -38,38 +56,44 @@ def get_json(url_match):
     split2 = split1.split(";</script>")[0]
     return json.loads(split2)
 
-def get_bets(url_match):
-    bets = {}
-    doublons = []
+def build_match(url_match):
     json = get_json(url_match)
-    outcomes = json["outcomes"]
-    for id_bet, bet in json["bets"].items():
-        bett = {}
-        outcomes_one_bet = json["bets"][id_bet]["outcomes"]
-        if len(outcomes_one_bet) < 4:
-            for outcome in outcomes_one_bet :
-                json_temp = outcomes[str(outcome)]
-                name_issue = replace_entities(json_temp['label'])
-                bett[name_issue]= json['odds'][str(outcome)]
-        
+    matches_id = list(json["matches"].keys())
+    competitorName1 = json["matches"][matches_id[-1]]['competitor1Name']
+    competitorName2 = json["matches"][matches_id[-1]]['competitor2Name']
+    bets_id = json["matches"][matches_id[-1]]['bets']
+    bets = {}
 
-            betTitle = json["bets"][id_bet]["betTitle"]
-            if betTitle in bets.keys() :
-                del bets[betTitle]
-                doublons.append(betTitle)
-            elif betTitle not in doublons :
-                bets[betTitle] = bett
-        
+    for bet_id in bets_id:
+        bet_id = str(bet_id)
+        outcomes = {}
+        betTitle = json["bets"][bet_id]["betTitle"]
+        outcomes_id = json["bets"][bet_id]["outcomes"]
 
-    return bets
+        if len(outcomes_id) <=3 :
+            for outcome_id in outcomes_id:
+                outcome_id = str(outcome_id)
+                outcome_name = json['outcomes'][outcome_id]["label"]
+                odd = json["odds"][outcome_id]
+                outcomes[outcome_name] = odd
+            bets[betTitle] = outcomes
+
+    match = Match(competitorName1, competitorName2, bets)
+    return match
 
 
-def get_league():
-    links =LinksScrap()
+
+
+def get_league(url):
+    matches = []
+    links = MatchsLinksScrap()
     for link in links:
         url = "https://www.winamax.fr" + link
-        print(get_bets(url))
-    return
+        match = build_match(url)
+        matches.append(match)
+    return matches
 
 
-print(get_league())
+print(get_league(url))
+
+        

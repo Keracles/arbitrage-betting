@@ -27,9 +27,8 @@ def LinksScrap():
 def get_page():
     session = HTMLSession()
     r = session.get(url)
-    r.html.render(keep_page=True, scrolldown=5)
+    r.html.render(scrolldown=1)
     soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
-    print(r.html.find('*')[0].html)
     return soup
 
 def get_games():
@@ -37,7 +36,7 @@ def get_games():
     paris = soup.find_all("sports-markets-single-market")
     for parie in paris :
         outcomes_names = parie.find_all("p")
-        if len(outcomes_names) <= 3:
+        if len(outcomes_names) <= 4:
             name_pari = str(parie.find("h2").get_text().strip())
             print(name_pari)
             for outcome_name in outcomes_names:

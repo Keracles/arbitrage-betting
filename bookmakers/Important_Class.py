@@ -6,4 +6,7 @@ class Match :
         self.eq2 = eq2
         self.issues = bets
     
+    def get_name(self):
+        return self.eq1 + " / " + self.eq2
+
     
