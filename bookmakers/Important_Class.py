@@ -8,5 +8,3 @@ class Match :
     
     def get_name(self):
         return self.eq1 + " / " + self.eq2
-
-    

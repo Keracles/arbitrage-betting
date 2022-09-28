@@ -69,7 +69,7 @@ def build_match(url_match):
     competitorName2 = json["matches"][matches_id[-1]]['competitor2Name']
     bets_id = json["matches"][matches_id[-1]]['bets']
     bets = {}
-
+    #On obtients la liste des bets
     for bet_id in bets_id:
         bet_id = str(bet_id)
         outcomes = {}
@@ -83,12 +83,11 @@ def build_match(url_match):
                 odd = json["odds"][outcome_id]
                 outcomes[outcome_name] = odd
             bets[betTitle] = outcomes
-
     match = Match(competitorName1, competitorName2, bets)
     return match
 
 
-def get_league_matches(url):
+def get_league_matches():
     matches = []
     links = MatchsLinksScrap()
     for link in links:
@@ -100,6 +99,6 @@ def get_league_matches(url):
 ################################################################################################################################################################
 
 
-print(get_league_matches(url))
+print(get_league_matches())
 
         
