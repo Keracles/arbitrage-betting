@@ -1,16 +1,18 @@
 from bs4 import BeautifulSoup
+import requests
 from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
-from bookmakers.Important_Class import Match
+from Important_Class import Match
 import multiprocessing as mp
-import time, os
+import json
 
 
 ################################################################################################################################################################
                             #Globals variables#
 url_betclic = 'https://www.betclic.fr/'                    
 url_ligue1 = "https://www.betclic.fr/football-s1/ligue-1-uber-eats-c4"
+url_match_test = 'https://www.betclic.fr/football-s1/ligue-1-uber-eats-c4/lorient-lille-m3001501294'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 
 ################################################################################################################################################################
@@ -23,6 +25,9 @@ def get_page(url):
     soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
     return soup
 
+def get_json(num_match):
+    r = requests.get(f"https://offer.cdn.begmedia.com/api/pub/v5/events/{num_match}?application=2&countrycode=fr&language=fr&sitecode=frfr")
+    return json.loads(r.text)
 ################################################################################################################################################################
                                 #Fonctions pricipales#
 
@@ -40,36 +45,43 @@ def MatchsLinksScrap(url_league):
     session.close()
     return links
 
+
 def build_match(url_match):
-    bets_r = {}
-    soup = get_page(url_match)
-    bets = soup.find_all("sports-markets-single-market")
-    #On obtients la liste des bets
+    #Obtenir le numéro du match
+    split = url_match.split('-')
+    num = split[-1]
+    match_id = int(num[1:len(num)])
 
-    for bet in bets :
-        outcomes = bet.find_all("p")
-        if len(outcomes) <= 3:
-            outcomes_r = {}
-            betTitle = str(bet.find("h2").get_text().strip())
-            for outcome in outcomes:
-                outcome_name = str(outcome.get_text().strip())
-                odd_part = bet.find("div", {"title" :  outcome_name})
-                odd = float(odd_part.find("span").get_text().strip().replace(",", "."))
-
-                outcomes_r[outcome_name] = odd
-        bets_r[betTitle] = outcomes_r
+    #On va récupérer et traiter le json
+    json = get_json(match_id) 
+    competitorName1 = json["contestants"][0]['name']
+    competitorName2 = json["contestants"][1]['name']
+    bets = {}
     
-    #On obtients le nom des équipes
-    nom_page = soup.find("meta",{"name" : "title"})
-    nom_page = nom_page["content"].split(' ')
-    for k in range(len(nom_page)):
-        if nom_page[k] == 'sur':
-            competitorName1 = nom_page[k+1]
-            competitorName2 = nom_page[k+3]
+    for bet in json['grouped_markets']:
+        if 'markets' in bet.keys():
+            bet = bet['markets'][0]
+            if len(bet['selections']) <=3 :
+                outcomes = {}
+                betTitle = bet["name"]
+                if len(bet["selections"]) == 1:
+                    if len(bet["selections"][0]) <=3 :
+                        for outcome in bet["selections"][0]:
+                            outcome_name = outcome['name']
+                            odd = outcome['odds']
+                            outcomes[outcome_name] = odd
+                        bets[betTitle] = outcomes
 
-    match = Match(competitorName1, competitorName2,bets_r)
-
+                else : 
+                    for outcome in bet["selections"]:
+                        outcome = outcome[0]
+                        outcome_name = outcome['name']
+                        odd = outcome['odds']
+                        outcomes[outcome_name] = odd
+                    bets[betTitle] = outcomes
+    match = Match(competitorName1, competitorName2, bets)
     return match
+
 
 def get_league_matches():
     matches = []
@@ -85,3 +97,4 @@ def get_league_matches():
     return matches
 
 ################################################################################################################################################################
+print(get_league_matches())
