@@ -10,9 +10,9 @@ import json
 
 ################################################################################################################################################################
                             #Globals variables#
-url_betclic = 'https://www.betclic.fr/'                    
-url_ligue1 = "https://www.betclic.fr/football-s1/ligue-1-uber-eats-c4"
-url_match_test = 'https://www.betclic.fr/football-s1/ligue-1-uber-eats-c4/lorient-lille-m3001501294'
+url_betclic = 'https://www.unibet.fr'                    
+url_ligue1 = "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=435774672&filter=R%25C3%25A9sultat&marketname=R%25C3%25A9sultat%2520du%2520match"
+url_match_test = 'https://www.unibet.fr/sport/football/event/lorient-lille-2553704_1.html'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 
 ################################################################################################################################################################
@@ -26,61 +26,49 @@ def get_page(url):
     return soup
 
 def get_json(num_match):
-    r = requests.get(f"https://offer.cdn.begmedia.com/api/pub/v5/events/{num_match}?application=2&countrycode=fr&language=fr&sitecode=frfr")
+    r = requests.get(f"https://www.unibet.fr/zones/event.json?eventId={num_match}")
     return json.loads(r.text)
 ################################################################################################################################################################
                                 #Fonctions pricipales#
 
 def MatchsLinksScrap(url_league):
-    session = HTMLSession()
-    r = session.get(url_league)
-    r.html.render(sleep=1, scrolldown=1)
-    #HTML Parser
     links = []
-    motif = re.compile("m3")
-    for str in r.html.links :
-        test = motif.search(str)
-        if test :
-            links.append(str)
-    session.close()
+    r =  requests.get(url_league)
+    json_file = json.loads(r.text)
+    for day in json_file["marketsByType"][0]['days']:
+        for event in day["events"]:
+            links.append(event["markets"][0]["eventFriendlyUrl"])
     return links
 
 
 def build_match(url_match):
-    #Obtenir le numéro du match
+    #Get number
     split = url_match.split('-')
-    num = split[-1]
-    match_id = int(num[1:len(num)])
-
+    split = split[-1]
+    split = split.split('.')
+    match_id = split[0]
+    
     #On va récupérer et traiter le json
     json = get_json(match_id) 
-    competitorName1 = json["contestants"][0]['name']
-    competitorName2 = json["contestants"][1]['name']
+    competitorName1 = json["eventHeader"]['homeName']
+    competitorName2 = json["eventHeader"]['awayName']
     bets = {}
     
-    for bet in json['grouped_markets']:
-        if 'markets' in bet.keys():
-            bet = bet['markets'][0]
+    for bet_out in json['marketClassList']:
+        for bet in bet_out['marketList']:
             if len(bet['selections']) <=3 :
                 outcomes = {}
-                betTitle = bet["name"]
-                if len(bet["selections"]) == 1:
-                    if len(bet["selections"][0]) <=3 :
-                        for outcome in bet["selections"][0]:
-                            outcome_name = outcome['name']
-                            odd = outcome['odds']
-                            outcomes[outcome_name] = odd
-                        bets[betTitle] = outcomes
-
-                else : 
-                    for outcome in bet["selections"]:
-                        outcome = outcome[0]
-                        outcome_name = outcome['name']
-                        odd = outcome['odds']
-                        outcomes[outcome_name] = odd
-                    bets[betTitle] = outcomes
+                betTitle = bet["marketType"]
+                for outcome in bet["selections"]:
+                    outcome_name = outcome['name']
+                    odd = round((int(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
+                    outcomes[outcome_name] = odd
+                bets[betTitle] = outcomes
+    
+    print(bets)
     match = Match(competitorName1, competitorName2, bets)
-    return match
+
+    return 
 
 
 def get_league_matches():
@@ -92,9 +80,10 @@ def get_league_matches():
         url_match = url_betclic + link
         match = build_match(url_match)
         matches.append(match)
-        print(f"Betclic avancement : {100*n/d}%")
+        print(f"Unibet avancement : {100*n/d}%")
         n += 1
     return matches
 
 ################################################################################################################################################################
-print(Match.get_name(get_league_matches()[0]))
+
+get_league_matches()

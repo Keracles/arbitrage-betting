@@ -1,4 +1,4 @@
-from bookmakers import betclic as bet
+from bookmakers import betclic
 
 if __name__ == "__main__":
-    print(bet.get_league_matches())
+    print(betclic.get_league_matches())
