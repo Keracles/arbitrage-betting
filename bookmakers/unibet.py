@@ -10,11 +10,12 @@ import json
 
 ################################################################################################################################################################
                             #Globals variables#
-url_betclic = 'https://www.unibet.fr'                    
-url_ligue1 = "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=435774672&filter=R%25C3%25A9sultat&marketname=R%25C3%25A9sultat%2520du%2520match"
-url_match_test = 'https://www.unibet.fr/sport/football/event/lorient-lille-2553704_1.html'
+url_unibet = 'https://www.unibet.fr'                    
+api_ligue1 = "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=435774672&filter=R%25C3%25A9sultat&marketname=R%25C3%25A9sultat%2520du%2520match"
+api_pl = 'https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=703695255&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match'
+url_match_test = 'https://www.unibet.fr/sport/football/event/leicester-manchester-city-2576687_1.html'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
-
+nb_outcome = 3
 ################################################################################################################################################################
                                 #Fonctions utiles#
 
@@ -31,9 +32,9 @@ def get_json(num_match):
 ################################################################################################################################################################
                                 #Fonctions pricipales#
 
-def MatchsLinksScrap(url_league):
+def MatchsLinksScrap(api_league):
     links = []
-    r =  requests.get(url_league)
+    r =  requests.get(api_league)
     json_file = json.loads(r.text)
     for day in json_file["marketsByType"][0]['days']:
         for event in day["events"]:
@@ -56,28 +57,31 @@ def build_match(url_match):
     
     for bet_out in json['marketClassList']:
         for bet in bet_out['marketList']:
-            if len(bet['selections']) <=3 :
+            if len(bet['selections']) <= nb_outcome :
                 outcomes = {}
                 betTitle = bet["marketType"]
+                betTitle = betTitle.replace(competitorName1, 'Home')
+                betTitle = betTitle.replace(competitorName2, 'Away')
                 for outcome in bet["selections"]:
                     outcome_name = outcome['name']
+                    outcome_name = outcome_name.replace(competitorName1, 'Home')
+                    outcome_name = outcome_name.replace(competitorName2, 'Away')
                     odd = round((int(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
                     outcomes[outcome_name] = odd
                 bets[betTitle] = outcomes
     
-    print(bets)
     match = Match(competitorName1, competitorName2, bets)
 
-    return 
+    return match
 
 
-def get_league_matches():
+def get_league_matches(api_league):
     matches = []
-    links = MatchsLinksScrap(url_ligue1)
+    links = MatchsLinksScrap(api_league)
     d = len(links)
     n = 1
     for link in links :
-        url_match = url_betclic + link
+        url_match = url_unibet + link
         match = build_match(url_match)
         matches.append(match)
         print(f"Unibet avancement : {100*n/d}%")
@@ -86,4 +90,4 @@ def get_league_matches():
 
 ################################################################################################################################################################
 
-get_league_matches()
+build_match(url_match_test)

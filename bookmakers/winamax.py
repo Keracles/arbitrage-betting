@@ -10,11 +10,11 @@ import re
 
 ################################################################################################################################################################
                             #Globals variables#
-
-path_driver = r'C:\Users\kerac\Documents\Tools\drivers\phantomjs.exe'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
-url = "https://www.winamax.fr/paris-sportifs/sports/1/7/4"
-
+url_winamax = 'https://www.winamax.fr'
+pattern_ligue1 = "/paris-sportifs/sports/1/7/4"
+url_match_test = 'https://www.winamax.fr/paris-sportifs/match/34172247'
+nb_outcome = 3
 ################################################################################################################################################################
                                 #Fonctions utiles#
 
@@ -32,27 +32,14 @@ def get_json(url_match):
 ################################################################################################################################################################
                                 #Fonctions pricipales#
 
-def LeagueLinksScrap():
-    session = HTMLSession()
-    r = session.get(url)
-    r.html.render(sleep=1, keep_page=True, scrolldown=1)
-    #HTML Parser
-    links = []
-    motif = re.compile("/paris-sportifs/sports/1/7")
-    for str in r.html.links :
-        test = motif.search(str)
-        if test :
-            links.append(str)
-    session.close()
-    return links
 
-def MatchsLinksScrap():
+def MatchsLinksScrap(pattern):
     session = HTMLSession()
-    r = session.get(url)
+    r = session.get(url_winamax + pattern)
     r.html.render(sleep=1, keep_page=True, scrolldown=1)
     #HTML Parser
     links = []
-    motif = re.compile("/paris-sportifs/match")
+    motif = re.compile('/paris-sportifs/match/')
     for str in r.html.links :
         test = motif.search(str)
         if test :
@@ -74,31 +61,39 @@ def build_match(url_match):
         bet_id = str(bet_id)
         outcomes = {}
         betTitle = json["bets"][bet_id]["betTitle"]
+        betTitle = betTitle.replace(competitorName1, 'Home')
+        betTitle = betTitle.replace(competitorName2, 'Away')
         outcomes_id = json["bets"][bet_id]["outcomes"]
 
-        if len(outcomes_id) <=3 :
+        if len(outcomes_id) <= nb_outcome :
             for outcome_id in outcomes_id:
                 outcome_id = str(outcome_id)
                 outcome_name = json['outcomes'][outcome_id]["label"]
+                outcome_name = outcome_name.replace(competitorName1, 'Home')
+                outcome_name = outcome_name.replace(competitorName2, 'Away')
                 odd = json["odds"][outcome_id]
                 outcomes[outcome_name] = odd
             bets[betTitle] = outcomes
+    print(bets)
     match = Match(competitorName1, competitorName2, bets)
     return match
 
 
-def get_league_matches():
+def get_league_matches(pattern):
     matches = []
-    links = MatchsLinksScrap()
+    links = MatchsLinksScrap(pattern)
+    d = len(links)
+    n = 1
     for link in links:
-        url = "https://www.winamax.fr" + link
+        url = url_winamax + link
         match = build_match(url)
         matches.append(match)
+        print(f"Winamax avancement : {100*n/d}%")
+        n += 1
     return matches
 
 ################################################################################################################################################################
 
 
-print(get_league_matches())
-
+build_match(url_match_test)
         
