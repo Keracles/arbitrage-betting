@@ -129,4 +129,48 @@ def get_league_matches(pattern):
     return matches
 
 ################################################################################################################################################################
-build_match(url_match_test)
+pattern_foot = {
+    "allemagne-1" : "/fr/competition/268-bundesliga",
+    "allemagne-2" : "/fr/competition/267-bundesliga_2",
+    "angleterre-1" : "/fr/competition/94-premier_league",
+    "angleterre-2" : "/fr/competition/202-championship",
+    "australie" : "/fr/competition/2169-australie_a_league",
+    "autriche" : "/fr/competition/131-autriche_bundesliga",
+    "belgique" : "/fr/competition/101-belgique_jupiler_pro_league",
+    "bresil" : "/fr/competition/81-bresil_serie_a",
+    "bulgarie" : "/fr/competition/885-bulgarie_a_pfg",
+    "chili" : "/fr/competition/21092-chili_primera_division",
+    "chypre" : "/fr/competition/985-chypre_gkc",
+    "danemark" : "/fr/competition/130-danemark_superligaen",
+    "ecosse" : "/fr/competition/100-ecosse_premiership",
+    "espagne-1" : "/fr/competition/306-laliga",
+    "espagne-2" : "/fr/competition/18-laliga2",
+    "usa" : "/fr/competition/5-major_league_soccer",
+    "europe-1" : "/fr/competition/6674-ligue_des_champions",
+    "europe-2" : "/fr/competition/6675-ligue_europa",
+    "france-1" : "/fr/competition/96-ligue_1_uber_eats",
+    "france-2" : "/fr/competition/97-ligue_2_bkt",
+    "grece" : "h/fr/competition/169-grece_superleague",
+    "israel" : "/fr/competition/918-israel_ligat_ha_al",
+    "italie-1" : "/fr/competition/305-serie_a",
+    "italie-2" : "/fr/competition/604-serie_b",
+    "japon" : "/fr/competition/771-j_league",
+    "norvege" : "/fr/competition/63-norvege_eliteserien",
+    "paraguay" : "/fr/competition/2610-paraguay_primera_division",
+    "pays-bas" : "/fr/competition/102-eredivisie",
+    "pologne" : "/fr/competition/875-pologne_ekstraklasa",
+    "portugal-1" : "/fr/competition/154-portugal_liga_portugal",
+    "portugal-2" : "/fr/competition/307-portugal_liga_portugal_2",
+    "reptcheque" : "/fr/competition/36163-republique_tcheque_1_liga",
+    "roumanie" : "/fr/competition/686-roumanie_liga_1",
+    "slovenie" : "/fr/competition/682-slovenie_prvaliga",
+    "suede" : "/fr/competition/99-suede_allsvenskan",
+    "suisse" : "/fr/competition/134-suisse_super_league",
+    "turquie" : "/fr/competition/254-turquie_super_lig"
+}
+
+
+get_league_matches(pattern_foot["allemagne-1"])
+
+################################################################################################################################################################
+

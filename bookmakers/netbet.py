@@ -92,6 +92,8 @@ def build_match(url_match):
         bets_replace[betTitle_replace] = outcomes_replace
 
     match = Match(competitorName1, competitorName2, bets_replace)
+    print(competitorName1, competitorName2)
+    print(bets_replace)
     return match
 
 
@@ -109,5 +111,47 @@ def get_league_matches(pattern):
     return matches
 
 ################################################################################################################################################################
+pattern_foot = {
+    "allemagne-1" : "/football/allemagne/bundesliga/",
+    "allemagne-2" : "/football/allemagne/bundesliga-2/",
+    "angleterre-1" : "/football/angleterre/premier-league/",
+    "angleterre-2" : "/football/angleterre/championship/",
+    "australie" : "/football/australie/a-league/",
+    "autriche" : "/football/autriche/bundesliga-aut/",
+    "belgique" : "/football/belgique/jupiler-league/",
+    "bresil" : "/football/bresil/brasileirao/",
+    "bulgarie" : "/football/bulgarie/first-professional-league/",
+    "chili" : "/football/chili/campeonato-afp-planvital/",
+    "chypre" : "/football/chypre/cyta-championship/",
+    "danemark" : "/football/danemark/superligaen/",
+    "ecosse" : "/football/ecosse/premiership/",
+    "espagne-1" : "/football/espagne/laliga/",
+    "espagne-2" : "/football/espagne/laliga2/",
+    "usa" : "/football/etats-unis/major-league-soccer/",
+    "europe-1" : "/football/ligue-des-champions/ligue-des-champions/",
+    "europe-2" : "/football/ligue-europa/ligue-europa/",
+    "france-1" : "/football/france/ligue-1-uber-eats/",
+    "france-2" : "/football/france/ligue-2-bkt/",
+    "grece" : "/football/grece/super-league/",
+    "israel" : "/football/israel/ligat-ha-al/",
+    "italie-1" : "/football/italie/serie-a/",
+    "italie-2" : "/football/italie/serie-b/",
+    "japon" : "/football/japon/j-league/",
+    "norvege" : "/football/norvege/eliteserien/",
+    "paraguay" : "/football/paraguay/primera-division/",
+    "pays-bas" : "/football/pays-bas/eredivisie/",
+    "pologne" : "/football/pologne/ekstraklasa/",
+    "portugal-1" : "/football/portugal/primeira-liga/",
+    "portugal-2" : "/football/portugal/segunda-liga/",
+    "reptcheque" : "/football/republique-tcheque/fortuna-liga/",
+    "roumanie" : "/football/roumanie/liga-1/",
+    "slovenie" : "/football/slovenie/prvaliga/",
+    "suede" : "/football/suede/allsvenskan/",
+    "suisse" : "/football/suisse/credit-suisse-super-league/",
+    "turquie" : "/football/turquie/super-lig/"
+}
 
-build_match(url_match_test)
+get_league_matches(pattern_foot["pologne"])
+
+################################################################################################################################################################
+

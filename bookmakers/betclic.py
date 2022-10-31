@@ -23,6 +23,7 @@ def get_page(url):
     r = session.get(url)
     r.html.render(sleep=1, scrolldown=1)
     soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
+    r.close()
     return soup
 
 def get_json(num_match):
@@ -42,7 +43,7 @@ def MatchsLinksScrap(pattern):
         test = motif.search(str)
         if test :
             links.append(str)
-    session.close()
+    r.close()
     return links
 
 
@@ -104,4 +105,46 @@ def get_league_matches(pattern):
     return matches
 
 ################################################################################################################################################################
-build_match(url_match_test)
+pattern_foot = {
+    "allemagne-1" : "/football-s1/allemagne-bundesliga-c5",
+    "allemagne-2" : "/football-s1/allemagne-bundesliga-2-c29",
+    "angleterre-1" : "/football-s1/angl-premier-league-c3",
+    "angleterre-2" : "/football-s1/angl-championship-c28",
+    "australie" : "/football-s1/australie-a-league-c1874",
+    "autriche" : "/football-s1/autriche-bundesliga-c35",
+    "belgique" : "/football-s1/belgique-division-1a-c26",
+    "bresil" : "/football-s1/bresil-serie-a-c187",
+    "bulgarie" : "/football-s1/bulgarie-a-pfg-c548",
+    "chili" : "/football-s1/chili-primera-c3584",
+    "chypre" : "/football-s1/chypre-division-1-c567",
+    "danemark" : "/football-s1/danemark-superliga-c88",
+    "ecosse" : "/football-s1/ecosse-premiership-c33",
+    "espagne-1" : "/football-s1/espagne-liga-primera-c7",
+    "espagne-2" : "/football-s1/espagne-liga-segunda-c31",
+    "usa" : "/football-s1/etats-unis-mls-c504",
+    "europe-1" : "/football-s1/ligue-des-champions-c8",
+    "europe-2" : "/football-s1/ligue-europa-c3453",
+    "france-1" : "/football-s1/ligue-1-uber-eats-c4",
+    "france-2" : "/football-s1/ligue-2-bkt-c19",
+    "grece" : "/football-s1/grece-superleague-c38",
+    "israel" : "/football-s1/israel-premier-league-c1876",
+    "italie-1" : "/football-s1/italie-serie-a-c6",
+    "italie-2" : "/football-s1/italie-serie-b-c30",
+    "japon" : "/football-s1/japon-j-league-c503",
+    "norvege" : "/football-s1/norvege-eliteserien-c156",
+    "paraguay" : "/football-s1/paraguay-primera-division-c5642",
+    "pays-bas" : "/football-s1/pays-bas-eredivisie-c21",
+    "pologne" : "/football-s1/pologne-ekstraklasa-c221",
+    "portugal-1" : "/football-s1/portugal-primeira-liga-c32",
+    "portugal-2" : "/football-s1/portugal-segunda-liga-c939",
+    "reptcheque" : "/football-s1/rep-tcheque-liga-c220",
+    "roumanie" : "/football-s1/roumanie-liga-1-c552",
+    "slovenie" : "/football-s1/slovenie-1-snl-c549",
+    "suede" : "/football-s1/suede-allsvenskan-c145",
+    "suisse" : "/football-s1/suisse-super-league-c27",
+    "turquie" : "/football-s1/turquie-super-lig-c37"
+}
+
+get_league_matches(pattern_foot["allemagne-1"])
+
+################################################################################################################################################################

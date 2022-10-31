@@ -1,3 +1,4 @@
+from socket import timeout
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -21,6 +22,7 @@ nb_outcome = 3
 def get_page(url):
     #Make request
     res = requests.get(url, headers=headers)
+    res.close()
     return res.text
 
 def get_json(url_match):
@@ -35,8 +37,9 @@ def get_json(url_match):
 
 def MatchsLinksScrap(pattern):
     session = HTMLSession()
+    print(url_winamax + pattern)
     r = session.get(url_winamax + pattern)
-    r.html.render(sleep=1, keep_page=True, scrolldown=1)
+    r.html.render(sleep=1, keep_page=True, scrolldown=1, timeout= 15)
     #HTML Parser
     links = []
     motif = re.compile('/paris-sportifs/match/')
@@ -45,6 +48,7 @@ def MatchsLinksScrap(pattern):
         if test :
             links.append(str)
     session.close()
+    r.close()
     return links
     
 
@@ -86,6 +90,7 @@ def get_league_matches(pattern):
     n = 1
     for link in links:
         url = url_winamax + link
+        print(url)
         match = build_match(url)
         matches.append(match)
         print(f"Winamax avancement : {100*n/d}%")
@@ -93,7 +98,45 @@ def get_league_matches(pattern):
     return matches
 
 ################################################################################################################################################################
+pattern_foot = {
+    "allemagne-1" : "/paris-sportifs/sports/1/30/42",
+    "allemagne-2" : "/paris-sportifs/sports/1/30/41",
+    "angleterre-1" : "/paris-sportifs/sports/1/376/4233",
+    "angleterre-2" : "/paris-sportifs/sports/1/1/1",
+    "australie" : "/paris-sportifs/sports/1/1/2",
+    "autriche" : "/paris-sportifs/sports/1/17/29",
+    "belgique" : "/paris-sportifs/sports/1/33/38",
+    "bresil" : "/paris-sportifs/sports/1/13/83",
+    "bulgarie" : "/paris-sportifs/sports/1/78/232",
+    "chili" : "/paris-sportifs/sports/1/49/67280",
+    "chypre" : "/paris-sportifs/sports/1/102/681",
+    "danemark" : "/paris-sportifs/sports/1/8/12",
+    "ecosse" : "/paris-sportifs/sports/1/22/54",
+    "espagne-1" : "/paris-sportifs/sports/1/32/36",
+    "espagne-2" : "/paris-sportifs/sports/1/32/37",
+    "usa" : "/paris-sportifs/sports/1/26/7048",
+    "europe-1" : "/paris-sportifs/sports/1/800000542/23",
+    "europe-2" : "/paris-sportifs/sports/1/800000542/10909",
+    "france-1" : "/paris-sportifs/sports/1/7/4",
+    "france-2" : "/paris-sportifs/sports/1/7/19",
+    "grece" : "/paris-sportifs/sports/1/67/127",
+    "israel" : "/paris-sportifs/sports/1/66/877",
+    "italie-1" : "/paris-sportifs/sports/1/31/33",
+    "italie-2" : "/paris-sportifs/sports/1/31/34",
+    "japon" : "/paris-sportifs/sports/1/52/82",
+    "norvege" : "/paris-sportifs/sports/1/5/5",
+    "paraguay" : "/paris-sportifs/sports/1/280/16752",
+    "pays-bas" : "/paris-sportifs/sports/1/35/39",
+    "pologne" : "/paris-sportifs/sports/1/47/64",
+    "portugal-1" : "/paris-sportifs/sports/1/44/52",
+    "portugal-2" : "/paris-sportifs/sports/1/44/280",
+    "reptcheque" : "/paris-sportifs/sports/1/18/49",
+    "roumanie" : "/paris-sportifs/sports/1/77/219",
+    "slovenie" : "/paris-sportifs/sports/1/24/94",
+    "suede" : "/paris-sportifs/sports/1/9/24",
+    "suisse" : "/paris-sportifs/sports/1/25/1060",
+    "turquie" : "/paris-sportifs/sports/1/46/62"
+}
 
-
-build_match(url_match_test)
-        
+#get_league_matches(pattern_foot["allemagne-1"])
+get_league_matches(pattern_ligue1)
