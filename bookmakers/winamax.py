@@ -58,6 +58,9 @@ def build_match(url_match):
     matches_id = list(json["matches"].keys())
     competitorName1 = json["matches"][matches_id[-1]]['competitor1Name']
     competitorName2 = json["matches"][matches_id[-1]]['competitor2Name']
+    if competitorName1 == None:
+        competitorName1 = "NotMatch"
+        competitorName2 = "NotMatch"
     bets_id = json["matches"][matches_id[-1]]['bets']
     bets = {}
     #On obtients la liste des bets
@@ -101,9 +104,9 @@ def get_league_matches(pattern):
 pattern_foot = {
     "allemagne-1" : "/paris-sportifs/sports/1/30/42",
     "allemagne-2" : "/paris-sportifs/sports/1/30/41",
-    "angleterre-1" : "/paris-sportifs/sports/1/376/4233",
-    "angleterre-2" : "/paris-sportifs/sports/1/1/1",
-    "australie" : "/paris-sportifs/sports/1/1/2",
+    "angleterre-1" : "/paris-sportifs/sports/1/1/1",
+    "angleterre-2" : "/paris-sportifs/sports/1/1/2",
+    "australie" : "/paris-sportifs/sports/1/34/144",
     "autriche" : "/paris-sportifs/sports/1/17/29",
     "belgique" : "/paris-sportifs/sports/1/33/38",
     "bresil" : "/paris-sportifs/sports/1/13/83",
@@ -138,5 +141,98 @@ pattern_foot = {
     "turquie" : "/paris-sportifs/sports/1/46/62"
 }
 
-#get_league_matches(pattern_foot["allemagne-1"])
-get_league_matches(pattern_ligue1)
+trad_bets = {
+    "" : {
+        "title" : "1x2",
+        "" : "Home",
+        "" : "Nul",
+        "" : "Away"
+    },
+
+    "" : {
+        "title" : "Double Chance",
+        "" : "Home ou Match nul",
+        "" : "Home ou Away",
+        "" : "Match nul ou Away"
+    },
+
+    "" : {
+        "title" : "Draw No Bet",
+        "" : "Home",
+        "" : "Away"
+    },
+
+    "" : {
+        "title" : "Both Teams To Score",
+        "" : "Oui",
+        "" : "Non"
+    },
+
+    "" : {
+        "title" : "1st Half - 1x2",
+        "" : "Home",
+        "" : "Nul",
+        "" : "Away"
+    },
+
+    "" : {
+        "title" : "1st Goal",
+        "" : "Home",
+        "" : "No Goal",
+        "" : "Away"
+    },
+
+    "" : {
+        "title" : "Home To Win Both Halves",
+        "" : "Oui",
+        "" : "Non"
+    },
+
+    "" : {
+        "title" : "Away To Win Both Halves",
+        "" : "Oui",
+        "" : "Non"
+    },
+
+    "" : {
+        "title" : "Home To Win Either Half",
+        "" : "Oui",
+        "" : "Non"
+    },
+
+    "" : {
+        "title" : "Away To Win Either Half",
+        "" : "Oui",
+        "" : "Non"
+    },
+
+    "" : {
+        "title" : "Highest Scoring Half",
+        "" : "1st",
+        "" : "2e",
+        "" : "Same"
+    },
+
+    "" : {
+        "title" : "Home Highest Scoring Half",
+        "" : "1st",
+        "" : "2e",
+        "" : "Same"
+    },
+
+    "" : {
+        "title" : "Away Highest Scoring Half",
+        "" : "1st",
+        "" : "2e",
+        "" : "Same"
+    },
+
+    "" : {
+        "title" : "1st Half - Both Teams To Score",
+        "" : "Oui",
+        "" : "Non"
+    }
+}
+
+get_league_matches(pattern_foot["angleterre-1"])
+

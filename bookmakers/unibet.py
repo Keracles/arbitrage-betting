@@ -73,7 +73,7 @@ def build_match(url_match):
                 bets[betTitle] = outcomes
     
     match = Match(competitorName1, competitorName2, bets)
-    print(bets)
+    print(competitorName1,competitorName2,bets)
 
     return match
 
@@ -132,7 +132,100 @@ pattern_foot = {
     "turquie" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=58869345&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match"
 }
 
-get_league_matches(pattern_foot["allemagne-1"])
+
+trad_bets = {
+    "1x2" : {
+        "title" : "1x2",
+        "Home" : "Home",
+        "Match nul" : "Nul",
+        "Away" : "Away"
+    },
+
+    "Double Chance" : {
+        "title" : "Double Chance",
+        "Home ou Match nul" : "Home ou Match nul",
+        "Home ou Away FC" : "Home ou Away",
+        "Match nul ou Away" : "Match nul ou Away"
+    },
+
+    "Draw No Bet" : {
+        "title" : "Draw No Bet",
+        "Home" : "Home",
+        "Away" : "Away"
+    },
+
+    "Both Teams To Score" : {
+        "title" : "Both Teams To Score",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    },
+
+    "1st Half - 1x2" : {
+        "title" : "1st Half - 1x2",
+        "Home" : "Home",
+        "Match nul" : "Nul",
+        "Away" : "Away"
+    },
+
+    "1st Goal" : {
+        "title" : "1st Goal",
+        "Home" : "Home",
+        "Aucun" : "No Goal",
+        "Away" : "Away"
+    },
+
+    "" : {
+        "title" : "Home To Win Both Halves",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    },
+
+    "Home To Win Both Halves" : {
+        "title" : "Away To Win Both Halves",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    },
+
+    "Home To Win Either Half" : {
+        "title" : "Home To Win Either Half",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    },
+
+    "Away To Win Either Half" : {
+        "title" : "Away To Win Either Half",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    },
+
+    "Highest Scoring Half" : {
+        "title" : "Highest Scoring Half",
+        "1ère Mi-temps" : "1st",
+        "2e Mi-temps" : "2e",
+        "Egalité" : "Same"
+    },
+
+    "" : {
+        "title" : "Home Highest Scoring Half",
+        "1ère Mi-temps" : "1st",
+        "2e Mi-temps" : "2e",
+        "Egalité" : "Same"
+    },
+
+    "" : {
+        "title" : "Away Highest Scoring Half",
+        "1ère Mi-temps" : "1st",
+        "2e Mi-temps" : "2e",
+        "Egalité" : "Same"
+    },
+
+    "" : {
+        "title" : "1st Half - Both Teams To Score",
+        "Oui" : "Oui",
+        "Non" : "Non"
+    }
+}
+get_league_matches(pattern_foot["angleterre-1"])
 
 ################################################################################################################################################################
 
