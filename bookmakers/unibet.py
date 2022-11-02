@@ -2,14 +2,15 @@ from bs4 import BeautifulSoup
 import requests
 from w3lib.html import replace_entities
 from requests_html import HTMLSession
-import re
-from Important_Class import Match
-import multiprocessing as mp
+from bookmakers import Important_Class
 import json
+from difflib import SequenceMatcher
+import pickle
 
 
 ################################################################################################################################################################
                             #Globals variables#
+bookmaker = "unibet"
 url_unibet = 'https://www.unibet.fr'                    
 api_ligue1 = "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=435774672&filter=R%25C3%25A9sultat&marketname=R%25C3%25A9sultat%2520du%2520match"
 api_pl = 'https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=703695255&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match'
@@ -53,27 +54,58 @@ def build_match(url_match):
     
     #On va récupérer et traiter le json
     json = get_json(match_id) 
-    competitorName1 = json["eventHeader"]['homeName']
-    competitorName2 = json["eventHeader"]['awayName']
+    competitorName1 = Important_Class.format_name_g(json["eventHeader"]['homeName'])
+    competitorName2 = Important_Class.format_name_g(json["eventHeader"]['awayName'])
     bets = {}
     
     for bet_out in json['marketClassList']:
         for bet in bet_out['marketList']:
             if len(bet['selections']) <= nb_outcome :
                 outcomes = {}
-                betTitle = bet["marketType"]
-                betTitle = betTitle.replace(competitorName1, 'Home')
-                betTitle = betTitle.replace(competitorName2, 'Away')
-                for outcome in bet["selections"]:
-                    outcome_name = outcome['name']
-                    outcome_name = outcome_name.replace(competitorName1, 'Home')
-                    outcome_name = outcome_name.replace(competitorName2, 'Away')
-                    odd = round((int(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
-                    outcomes[outcome_name] = odd
-                bets[betTitle] = outcomes
+                betTitle = Important_Class.format_name_g(bet["marketType"])
+                betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2,bookmaker)
+                if betTitle in trad_bets.keys() : 
+                    for outcome in bet["selections"]:
+                        outcome_name = Important_Class.format_name_g(outcome['name'])
+                        outcome_name_old = outcome_name
+                        outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                        odd = round((float(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
+
+                        try :
+                            outcome_name = trad_bets[betTitle][outcome_name]
+                            outcomes[outcome_name] = odd
+                        except KeyError : 
+                            print(f"KEY ERROR SPOTTED, str rentré {outcome_name_old}, Transformé en {outcome_name} Team en présence : {competitorName1} et {competitorName2}")
+                            s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
+                            s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
+                            if s2.ratio() > s1.ratio() :
+                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
+                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                                    loaded_dict = pickle.load(f)
+                                    f.close()
+                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                                    loaded_dict[outcome_name_old] = competitorName2
+                                    pickle.dump(loaded_dict, f)
+                                    f.close()
+                            else :
+                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
+                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                                    loaded_dict = pickle.load(f)
+                                    f.close()
+                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                                    loaded_dict[outcome_name_old] = competitorName2
+                                    pickle.dump(loaded_dict, f)
+                                    f.close()
+                            Important_Class.actualisation_trad(bookmaker)
+                        except :
+                            raise
+
+
+
+                    betTitle = trad_bets[betTitle]["title"]
+                    bets[betTitle] = outcomes
     
-    match = Match(competitorName1, competitorName2, bets)
-    print(competitorName1,competitorName2,bets)
+    match = Important_Class.Match(competitorName1, competitorName2, bets)
 
     return match
 
@@ -91,6 +123,7 @@ def get_league_matches(api_league):
         n += 1
     return matches
 
+
 ################################################################################################################################################################
 pattern_foot = {
     "allemagne-1" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=116432547&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
@@ -103,7 +136,6 @@ pattern_foot = {
     "bresil" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=30918991&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "bulgarie" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=32152172&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "chili" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=242528229&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
-    "chypre" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=33838215&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "danemark" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=30910871&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "ecosse" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=31413185&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "espagne-1" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=116876665&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
@@ -119,7 +151,6 @@ pattern_foot = {
     "italie-2" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=32975099&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "japon" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=30911324&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "norvege" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=30910939&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
-    "paraguay" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=703695253&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "pays-bas" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=31086981&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "pologne" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=31921084&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
     "portugal-1" : "https://www.unibet.fr/zones/v3/sportnode/markets.json?nodeId=436203630&filter=R%C3%A9sultat&marketname=R%C3%A9sultat%20du%20match",
@@ -144,8 +175,14 @@ trad_bets = {
     "Double Chance" : {
         "title" : "Double Chance",
         "Home ou Match nul" : "Home ou Match nul",
-        "Home ou Away FC" : "Home ou Away",
-        "Match nul ou Away" : "Match nul ou Away"
+        "Home FC ou Match nul" : "Home ou Match nul",
+        "Home ou Away" : "Home ou Away",
+        "Home FC ou Away" : "Home ou Away",
+        'Home Wanderers ou Away' : "Home ou Away",
+        'Home United Or Away City' : "Home ou Away",
+        "Match nul ou Away" : "Match nul ou Away",
+        'Egalité ou Away' : 'Match nul ou Away',
+        "Home ou Away FC" :  "Home ou Away"
     },
 
     "Draw No Bet" : {
@@ -225,7 +262,7 @@ trad_bets = {
         "Non" : "Non"
     }
 }
-get_league_matches(pattern_foot["angleterre-1"])
+
 
 ################################################################################################################################################################
 

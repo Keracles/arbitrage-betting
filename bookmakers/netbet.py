@@ -3,11 +3,12 @@ import requests
 from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
-from Important_Class import Match
+from bookmakers import Important_Class
 
 
 ################################################################################################################################################################
                             #Globals variables#
+bookmaker = "netbet"
 url_netbet = 'https://www.netbet.fr'                    
 pattern_ligue1 = "/football/france/ligue-1-uber-eats/"
 pattern_pl = "/football/angleterre/premier-league/"
@@ -77,23 +78,23 @@ def build_match(url_match):
                         odd = float(outcome.find('div', 'nb-odds_amount').contents[0].replace(",", '.'))
                         outcomes[outcome_name] = odd
                     bets[betTitle] = outcomes
-    competitorName1 = list(bets['Qui va gagner le match ?'].keys())[0]
-    competitorName2 = list(bets['Qui va gagner le match ?'].keys())[-1]
+    competitorName1 = Important_Class.format_name_g(list(bets['Qui va gagner le match ?'].keys())[0])
+    competitorName2 = Important_Class.format_name_g(list(bets['Qui va gagner le match ?'].keys())[-1])
 
     bets_replace = {}
     for i, (betTitle, outcomes) in enumerate(bets.items()):
         betTitle_replace = betTitle.replace(competitorName1, 'Home')
         betTitle_replace = betTitle_replace.replace(competitorName2, 'Away')
         outcomes_replace = {}
-        for i, (outcome_name, odd) in enumerate(outcomes.items()):
-            outcome_name_replace = outcome_name.replace(competitorName1, 'Home')
-            outcome_name_replace = outcome_name_replace.replace(competitorName2, 'Away')
-            outcomes_replace[outcome_name_replace] = odd
-        bets_replace[betTitle_replace] = outcomes_replace
+        if betTitle_replace in trad_bets.keys() :
+            for i, (outcome_name, odd) in enumerate(outcomes.items()):
+                outcome_name_replace = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                outcome_name_replace = trad_bets[betTitle_replace][outcome_name_replace]
+                outcomes_replace[outcome_name_replace] = odd
+            betTitle_replace = trad_bets[betTitle_replace]["title"]
+            bets_replace[betTitle_replace] = outcomes_replace
 
-    match = Match(competitorName1, competitorName2, bets_replace)
-    print(competitorName1, competitorName2)
-    print(bets_replace)
+    match = Important_Class.Match(competitorName1, competitorName2, bets_replace)
     return match
 
 
@@ -110,6 +111,9 @@ def get_league_matches(pattern):
         n += 1
     return matches
 
+
+
+
 ################################################################################################################################################################
 pattern_foot = {
     "allemagne-1" : "/football/allemagne/bundesliga/",
@@ -122,7 +126,6 @@ pattern_foot = {
     "bresil" : "/football/bresil/brasileirao/",
     "bulgarie" : "/football/bulgarie/first-professional-league/",
     "chili" : "/football/chili/campeonato-afp-planvital/",
-    "chypre" : "/football/chypre/cyta-championship/",
     "danemark" : "/football/danemark/superligaen/",
     "ecosse" : "/football/ecosse/premiership/",
     "espagne-1" : "/football/espagne/laliga/",
@@ -138,7 +141,6 @@ pattern_foot = {
     "italie-2" : "/football/italie/serie-b/",
     "japon" : "/football/japon/j-league/",
     "norvege" : "/football/norvege/eliteserien/",
-    "paraguay" : "/football/paraguay/primera-division/",
     "pays-bas" : "/football/pays-bas/eredivisie/",
     "pologne" : "/football/pologne/ekstraklasa/",
     "portugal-1" : "/football/portugal/primeira-liga/",
@@ -152,99 +154,99 @@ pattern_foot = {
 }
 
 trad_bets = {
-    "" : {
+    "Qui va gagner le match ?" : {
         "title" : "1x2",
-        "" : "Home",
-        "" : "Nul",
-        "" : "Away"
+        "Home" : "Home",
+        "Nul" : "Nul",
+        "Away" : "Away"
     },
 
-    "" : {
+    "Double Chance" : {
         "title" : "Double Chance",
-        "" : "Home ou Match nul",
-        "" : "Home ou Away",
-        "" : "Match nul ou Away"
+        "1N" : "Home ou Match nul",
+        "12" : "Home ou Away",
+        "N2" : "Match nul ou Away"
     },
 
-    "" : {
+    "Qui va gagner le match ? (remboursé si match nul)" : {
         "title" : "Draw No Bet",
-        "" : "Home",
-        "" : "Away"
+        "Home" : "Home",
+        "Away" : "Away"
     },
 
-    "" : {
+    "Les 2 équipes marquent ?" : {
         "title" : "Both Teams To Score",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     },
 
-    "" : {
+    "Qui va gagner la 1ère mi-temps ?" : {
         "title" : "1st Half - 1x2",
-        "" : "Home",
-        "" : "Nul",
-        "" : "Away"
+        "Home" : "Home",
+        "Nul" : "Nul",
+        "Away" : "Away"
     },
 
-    "" : {
+    "Première équipe à marquer ?" : {
         "title" : "1st Goal",
-        "" : "Home",
-        "" : "No Goal",
-        "" : "Away"
+        "Home" : "Home",
+        "Pas de but" : "No Goal",
+        "Away" : "Away"
     },
 
-    "" : {
+    "Home gagne les 2 mi-temps ?" : {
         "title" : "Home To Win Both Halves",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     },
 
-    "" : {
+    "Away gagne les 2 mi-temps ?" : {
         "title" : "Away To Win Both Halves",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     },
 
-    "" : {
+    "Home gagne au moins une des 2 mi-temps ?" : {
         "title" : "Home To Win Either Half",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     },
 
-    "" : {
+    "Away gagne au moins une des 2 mi-temps ?" : {
         "title" : "Away To Win Either Half",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     },
 
-    "" : {
+    "Mi-temps avec le plus de buts ?" : {
         "title" : "Highest Scoring Half",
-        "" : "1st",
-        "" : "2e",
-        "" : "Same"
+        "1ère" : "1st",
+        "2ème" : "2e",
+        "Autant" : "Same"
     },
 
-    "" : {
+    "Mi-temps avec le plus de buts pour Home ?" : {
         "title" : "Home Highest Scoring Half",
-        "" : "1st",
-        "" : "2e",
-        "" : "Same"
+        "1ère" : "1st",
+        "2ème" : "2e",
+        "Autant" : "Same"
     },
 
-    "" : {
+    "Mi-temps avec le plus de buts pour Away ?" : {
         "title" : "Away Highest Scoring Half",
-        "" : "1st",
-        "" : "2e",
-        "" : "Same"
+        "1ère" : "1st",
+        "2ème" : "2e",
+        "Autant" : "Same"
     },
 
-    "" : {
+    "Les 2 équipes marquent en 1ère mi-temps ?" : {
         "title" : "1st Half - Both Teams To Score",
-        "" : "Oui",
-        "" : "Non"
+        "Oui" : "Oui",
+        "Non" : "Non"
     }
 }
 
-get_league_matches(pattern_foot["angleterre-1"])
+
 
 ################################################################################################################################################################
 

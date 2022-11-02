@@ -1,4 +1,4 @@
-from bookmakers import betclic
+import scrap
 
 if __name__ == "__main__":
-    print(betclic.pattern_foot)
+    scrap.get_foot()
