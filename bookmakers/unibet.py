@@ -86,4 +86,4 @@ def get_league_matches():
 
 ################################################################################################################################################################
 
-get_league_matches()
+print(get_page("https://www.netbet.fr/football/france/ligue-1-uber-eats/lens-toulouse"))
