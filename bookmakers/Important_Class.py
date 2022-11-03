@@ -1,21 +1,37 @@
 import unidecode
 import pickle
 from difflib import SequenceMatcher
-import os 
+from f_annex import param
+
+
+
+debug = param.debug
 ######################################################## CLASSES ########################################################
 
 class Match :
-    def __init__(self,eq1:str,eq2:str,bets:dict) -> None:
-        self.eq1 = eq1
-        self.eq2 = eq2
+    def __init__(self,eq1:str,eq2:str,bets:dict, url:str) -> None:
+        self.home = eq1
+        self.away = eq2
         self.bets = bets
+        self.url = url
     
     def get_name(self):
-        return self.eq1 + " / " + self.eq2
+        return self.home + " / " + self.away
     
     def show(self):
-        print(f"Match : {self.eq1} vs {self.eq2} \n Bets : \n {self.bets}")
+        print(f"Match : {self.home} vs {self.away} \n Url : {self.url} \n Bets : \n {self.bets}")
         return 
+    
+
+    def comparaison(match1, match2):
+        s1 = SequenceMatcher(None, match1.home, match2.home)
+        s2 = SequenceMatcher(None, match1.away, match2.away)
+        if s1.ratio() > 0.7 and s2.ratio() > 0.5:
+            return True
+        else :
+            return False 
+
+
 
  #Format des strings   
 def format_espace(str):
@@ -34,7 +50,7 @@ def format_name_g(str):
     str = str.capitalize()
     return str
 
-def format_replace(bookmaker, str):
+def format_replace(bookmaker, str, name_league):
     if bookmaker == "unibet" : 
         loaded_dict = trad_unibet
     elif bookmaker == "winamax" : 
@@ -51,12 +67,18 @@ def format_replace(bookmaker, str):
         str = str.replace(cle, valeur)
     return str
 
-def format_name(str, competitorName1, competitorName2, bookmaker):
+def format_name(str, competitorName1, competitorName2, bookmaker, name_league):
     #Remplacement par bookmaker
     if bookmaker == "unibet" : 
-        str  = format_replace("unibet", str)
-    if bookmaker == 'winamax':
-        str  = format_replace("winamax", str)
+        str  = format_replace("unibet", str, name_league)
+    elif bookmaker == 'winamax':
+        str  = format_replace("winamax", str, name_league)
+    elif bookmaker == 'betclic' :
+        str  = format_replace("betclic", str, name_league)
+    elif bookmaker == 'zebet' :
+        str  = format_replace("zebet", str, name_league)
+    elif bookmaker == 'netbet' :
+        str  = format_replace("netbet", str, name_league)
     
     #Home / Away
     str = str.replace(competitorName1, 'Home')
@@ -67,15 +89,16 @@ def format_name(str, competitorName1, competitorName2, bookmaker):
     return str
 
 #Check des trads
-def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker):
+def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league):
     boucle = True
-                        
-    while boucle :
+    k = 0         
+    while boucle and k < 3 :
         try :
             outcome_name = trad_bets[betTitle][outcome_name]
             boucle = False
         except KeyError : 
             print("-------------------------------------- KEY ERROR SPOTTED ---------------------------------------------")
+            print(f"-------------------------------------- {bookmaker} ---------------------------------------------")
             print(f"pour le bet {betTitle}, \n Team en présence : {competitorName1} et {competitorName2} \n str rentré {outcome_name_old}, \n Transformé en {outcome_name}")
             s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
             s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
@@ -85,7 +108,7 @@ def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outc
                     loaded_dict = pickle.load(f)
                     f.close()
                 with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                    loaded_dict[outcome_name_old] = competitorName2
+                    loaded_dict[name_league][outcome_name_old] = competitorName2
                     pickle.dump(loaded_dict, f)
                     f.close()
             else :
@@ -94,23 +117,18 @@ def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outc
                     loaded_dict = pickle.load(f)
                     f.close()
                 with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                    loaded_dict[outcome_name_old] = competitorName1
+                    loaded_dict[name_league][outcome_name_old] = competitorName1
                     pickle.dump(loaded_dict, f)
                     f.close()
             actualisation_trad(bookmaker)
             outcome_name = format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+            k+=1
         except :
             raise
     return outcome_name
 
 
 
-#Traduction
-trad_unibet = {}
-trad_winamax = {}
-trad_betclic = {}
-trad_netbet = {}
-trad_zebet = {}
 
 
 
@@ -137,5 +155,12 @@ def actualisation_trad(bookmaker):
         with open(r'bookmakers\trad_bookmakers\zebet.pkl', 'rb') as f:
             trad_zebet = pickle.load(f)
             f.close()
+
+#Traduction
+trad_unibet = {}
+trad_winamax = {}
+trad_betclic = {}
+trad_netbet = {}
+trad_zebet = {}
 
 actualisation_trad("all")

@@ -10,7 +10,6 @@ import re
 ################################################################################################################################################################
                             #Globals variables#
 
-debug = True
 bookmaker = 'winamax'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 url_winamax = 'https://www.winamax.fr'
@@ -39,7 +38,7 @@ def get_json(url_match):
 def MatchsLinksScrap(pattern):
     session = HTMLSession()
     r = session.get(url_winamax + pattern)
-    r.html.render(sleep=1, keep_page=True, scrolldown=1, timeout= 15)
+    r.html.render(sleep=5, keep_page=True, timeout= 30)
     #HTML Parser
     links = []
     motif = re.compile('/paris-sportifs/match/')
@@ -53,7 +52,7 @@ def MatchsLinksScrap(pattern):
     
 
 
-def build_match(url_match):
+def build_match(url_match, name_league):
     json = get_json(url_match)
     matches_id = list(json["matches"].keys())
     competitorName1 = Important_Class.format_name_g(json["matches"][matches_id[-1]]['competitor1Name'])
@@ -68,10 +67,10 @@ def build_match(url_match):
         bet_id = str(bet_id)
         outcomes = {}
         betTitle = Important_Class.format_name_g(json["bets"][bet_id]["betTitle"])
-        betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2,bookmaker)
+        betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2,bookmaker, name_league)
         outcomes_id = json["bets"][bet_id]["outcomes"]
 
-        if debug :
+        if Important_Class.debug :
             #print("Balise 1 : ", betTitle)
             a=1
 
@@ -81,18 +80,18 @@ def build_match(url_match):
                         outcome_id = str(outcome_id)
                         outcome_name = Important_Class.format_name_g(json['outcomes'][outcome_id]["label"])
                         outcome_name_old = outcome_name
-                        outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                        outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker, name_league)
                         odd = round(float(json["odds"][outcome_id]),2)
 
-                        outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker)
+                        outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league)
                         outcomes[outcome_name] = odd
 
                         
                 betTitle = trad_bets[betTitle]["title"]
                 bets[betTitle] = outcomes
-    match = Important_Class.Match(competitorName1, competitorName2, bets)
+    match = Important_Class.Match(competitorName1, competitorName2, bets, url_match)
 
-    if debug :
+    if Important_Class.debug :
         Important_Class.Match.show(match)
     return match
 
@@ -100,19 +99,13 @@ def build_match(url_match):
 
 
 
-def get_league_matches(pattern):
+def get_league_matches(pattern, name_league):
     matches = []
     links = MatchsLinksScrap(pattern)
-    d = len(links)
-    n = 1
     for link in links:
         url = url_winamax + link
-        if debug :
-            print(url)
-        match = build_match(url)
+        match = build_match(url, name_league)
         matches.append(match)
-        print(f"Winamax avancement : {100*n/d}%")
-        n += 1
     return matches
 
 

@@ -36,9 +36,10 @@ def get_json(num_match):
 def MatchsLinksScrap(pattern):
     session = HTMLSession()
     r = session.get(url_betclic + pattern)
-    r.html.render(sleep=1, scrolldown=1)
+    r.html.render(sleep=1, scrolldown=1, timeout = 30)
     #HTML Parser
     links = []
+    
     motif = re.compile("m3")
     for str in r.html.links :
         test = motif.search(str)
@@ -48,7 +49,7 @@ def MatchsLinksScrap(pattern):
     return links
 
 
-def build_match(url_match):
+def build_match(url_match, name_league):
     #Obtenir le numéro du match
     split = url_match.split('-')
     num = split[-1]
@@ -65,47 +66,52 @@ def build_match(url_match):
             bet = bet['markets'][0]
             if len(bet['selections']) <=nb_outcome :
                 outcomes = {}
-                betTitle = bet["name"]
-                betTitle = betTitle.replace(competitorName1, 'Home')
-                betTitle = betTitle.replace(competitorName2, 'Away')
+                betTitle = Important_Class.format_name_g(bet["name"])
+                betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2, bookmaker, name_league)
+                if Important_Class.debug :
+                    a=1
+                    print(betTitle)
                 if betTitle in trad_bets.keys() :
                     if len(bet["selections"]) == 1:
                         if len(bet["selections"][0]) <=nb_outcome :
                             for outcome in bet["selections"][0]:
-                                outcome_name = outcome['name']
-                                outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                                outcome_name = Important_Class.format_name_g(outcome['name'])
+                                outcome_name_old = outcome_name 
+                                outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker, name_league)
                                 odd = outcome['odds']
 
 
-                                outcome_name = trad_bets[betTitle][outcome_name]
+                                outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league)
                                 outcomes[outcome_name] = odd
+                            betTitle = trad_bets[betTitle]["title"]
                             bets[betTitle] = outcomes
 
                     else : 
                         for outcome in bet["selections"]:
                             outcome = outcome[0]
-                            outcome_name = outcome['name']
+                            outcome_name = Important_Class.format_name_g(outcome['name'])
+                            outcome_name_old = outcome_name 
                             outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
                             odd = outcome['odds']
-                            outcome_name = trad_bets[betTitle][outcome_name]
+                            outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league)
                             outcomes[outcome_name] = odd
                         betTitle = trad_bets[betTitle]["title"]
                         bets[betTitle] = outcomes
-    match = Important_Class.Match(competitorName1, competitorName2, bets)
+    match = Important_Class.Match(competitorName1, competitorName2, bets, url_match)
+
+    if Important_Class.debug:
+        Important_Class.Match.show(match)
+
     return match
 
 
-def get_league_matches(pattern):
+def get_league_matches(pattern, name_league):
     matches = []
     links = MatchsLinksScrap(pattern)
-    d = len(links)
-    n = 1
     for link in links :
         url_match = url_betclic + link
-        match = build_match(url_match)
+        match = build_match(url_match, name_league)
         matches.append(match)
-        print(f"Betclic avancement : {100*n/d}%")
-        n += 1
     return matches
 
 
@@ -150,33 +156,33 @@ pattern_foot = {
 
 
 trad_bets = {
-    "Résultat du match" : {
+    "Resultat du match" : {
         "title" : "1x2",
         "Home" : "Home",
         "Nul" : "Nul",
         "Away" : "Away"
     },
 
-    "Match" : {
+    "Match0" : {
         "title" : "Double Chance",
         "Home ou Nul" : "Home ou Match nul",
         "Home ou Away" : "Home ou Away",
         "Nul ou Away" : "Match nul ou Away"
     },
 
-    "Résultat du match (remboursé si match nul)" : {
+    "Resultat du match (rembourse si match nul)" : {
         "title" : "Draw No Bet",
         "Home" : "Home",
         "Away" : "Away"
     },
 
-    "But pour les 2 équipes" : {
+    "But pour les 2 equipes" : {
         "title" : "Both Teams To Score",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "1ère mi-temps - Résultat" : {
+    "1ere mi-temps - Resultat" : {
         "title" : "1st Half - 1x2",
         "Home" : "Home",
         "Nul" : "Nul",
@@ -216,26 +222,26 @@ trad_bets = {
 
     "Mi-temps avec le plus de buts" : {
         "title" : "Highest Scoring Half",
-        "1ère mi-temps" : "1st",
-        "2ème mi-temps" : "2e",
+        "1ere mi-temps" : "1st",
+        "2eme mi-temps" : "2e",
         "Nul" : "Same"
     },
 
     "Mi-temps avec le + de buts - Home" : {
         "title" : "Home Highest Scoring Half",
-        "1ère mi-temps" : "1st",
-        "2ème mi-temps" : "2e",
+        "1ere mi-temps" : "1st",
+        "2eme mi-temps" : "2e",
         "Nul" : "Same"
     },
 
     "Mi-temps avec le + de buts - Away" : {
         "title" : "Away Highest Scoring Half",
-        "1ère mi-temps" : "1st",
-        "2ème mi-temps" : "2e",
+        "1ere mi-temps" : "1st",
+        "2eme mi-temps" : "2e",
         "Nul" : "Same"
     },
 
-    "1ère Mi-temps - Les 2 équipes marquent" : {
+    "1ere Mi-temps - Les 2 equipes marquent" : {
         "title" : "1st Half - Both Teams To Score",
         "Oui" : "Oui",
         "Non" : "Non"

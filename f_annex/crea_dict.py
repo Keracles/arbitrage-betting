@@ -1,7 +1,7 @@
 import pickle
 
-bookmaker = "winamax"
-creation = False
+bookmaker = "netbet"
+creation = True
 
 if creation :
     pickle_out = open(f'bookmakers\\trad_bookmakers\\{bookmaker}.pkl',"wb")

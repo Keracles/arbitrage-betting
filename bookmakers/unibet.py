@@ -3,8 +3,7 @@ import requests
 from requests_html import HTMLSession
 from bookmakers import Important_Class
 import json
-from difflib import SequenceMatcher
-import pickle
+from f_annex import exceptions
 
 
 ################################################################################################################################################################
@@ -21,7 +20,7 @@ nb_outcome = 3
 
 def get_page(url):
     session = HTMLSession()
-    r = session.get(url)
+    r = session.get(url, timeout=10)
     r.html.render(sleep=1, scrolldown=1)
     soup = BeautifulSoup(r.html.find('*')[0].html, 'html.parser')
     r.close()
@@ -37,6 +36,14 @@ def MatchsLinksScrap(api_league):
     links = []
     r =  requests.get(api_league)
     json_file = json.loads(r.text)
+
+    try :
+        json_file["marketsByType"][0]['days'] 
+    except KeyError:
+        raise exceptions.NoMatchinLeague
+
+
+
     for day in json_file["marketsByType"][0]['days']:
         for event in day["events"]:
             links.append(event["markets"][0]["eventFriendlyUrl"])
@@ -44,7 +51,7 @@ def MatchsLinksScrap(api_league):
     return links
 
 
-def build_match(url_match):
+def build_match(url_match, name_league):
     #Get number
     split = url_match.split('-')
     split = split[-1]
@@ -52,80 +59,48 @@ def build_match(url_match):
     match_id = split[0]
     
     #On va récupérer et traiter le json
-    json = get_json(match_id) 
+    json = get_json(match_id)
     competitorName1 = Important_Class.format_name_g(json["eventHeader"]['homeName'])
     competitorName2 = Important_Class.format_name_g(json["eventHeader"]['awayName'])
     bets = {}
+
     
     for bet_out in json['marketClassList']:
         for bet in bet_out['marketList']:
             if len(bet['selections']) <= nb_outcome :
                 outcomes = {}
                 betTitle = Important_Class.format_name_g(bet["marketType"])
-                betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2,bookmaker)
+                betTitle = Important_Class.format_name(betTitle, competitorName1, competitorName2,bookmaker, name_league)
+                if Important_Class.debug:
+                    a=1
+                    #print(betTitle)
                 if betTitle in trad_bets.keys() : 
                     for outcome in bet["selections"]:
                         outcome_name = Important_Class.format_name_g(outcome['name'])
                         outcome_name_old = outcome_name
-                        outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                        outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker, name_league)
                         odd = round((float(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
-
-
-                        boucle = True
-
-                        while boucle :
-                            try :
-                                outcome_name = trad_bets[betTitle][outcome_name]
-                                outcomes[outcome_name] = odd
-                                boucle = False
-                            except KeyError : 
-                                print("33[1;31;40m KEY ERROR SPOTTED  n")
-                                print(f"pour le bet {betTitle}, \n Team en présence : {competitorName1} et {competitorName2} \n str rentré {outcome_name_old}, \n Transformé en {outcome_name}")
-                                s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
-                                s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
-                                if s2.ratio() > s1.ratio() :
-                                    print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
-                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                        loaded_dict = pickle.load(f)
-                                        f.close()
-                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                        loaded_dict[outcome_name_old] = competitorName2
-                                        pickle.dump(loaded_dict, f)
-                                        f.close()
-                                else :
-                                    print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
-                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                        loaded_dict = pickle.load(f)
-                                        f.close()
-                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                        loaded_dict[outcome_name_old] = competitorName1
-                                        pickle.dump(loaded_dict, f)
-                                        f.close()
-                                Important_Class.actualisation_trad(bookmaker)
-                            except :
-                                raise
-
-
+                        outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league)
+                        outcomes[outcome_name] = odd
 
                     betTitle = trad_bets[betTitle]["title"]
                     bets[betTitle] = outcomes
     
-    match = Important_Class.Match(competitorName1, competitorName2, bets)
+    
+    match = Important_Class.Match(competitorName1, competitorName2, bets, url_match)
 
+    if Important_Class.debug:
+        Important_Class.Match.show(match)
     return match
 
 
-def get_league_matches(api_league):
+def get_league_matches(api_league, name_league):
     matches = []
     links = MatchsLinksScrap(api_league)
-    d = len(links)
-    n = 1
     for link in links :
         url_match = url_unibet + link
-        match = build_match(url_match)
+        match = build_match(url_match, name_league)
         matches.append(match)
-        print(f"Unibet avancement : {100*n/d}%")
-        n += 1
     return matches
 
 
@@ -177,7 +152,7 @@ trad_bets = {
         "Away" : "Away"
     },
 
-    "Double Chance" : {
+    "" : {
         "title" : "Double Chance",
         "Home ou Match nul" : "Home ou Match nul",
         "Home FC ou Match nul" : "Home ou Match nul",
@@ -190,74 +165,74 @@ trad_bets = {
         "Home ou Away FC" :  "Home ou Away"
     },
 
-    "Draw No Bet" : {
+    "Draw no bet" : {
         "title" : "Draw No Bet",
         "Home" : "Home",
         "Away" : "Away"
     },
 
-    "Both Teams To Score" : {
+    "Both teams to score" : {
         "title" : "Both Teams To Score",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "1st Half - 1x2" : {
+    "1st half - 1x2" : {
         "title" : "1st Half - 1x2",
         "Home" : "Home",
         "Match nul" : "Nul",
         "Away" : "Away"
     },
 
-    "1st Goal" : {
+    "1st goal" : {
         "title" : "1st Goal",
         "Home" : "Home",
         "Aucun" : "No Goal",
         "Away" : "Away"
     },
 
-    "" : {
+    "Home To Win Both Halves" : {
         "title" : "Home To Win Both Halves",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "Home To Win Both Halves" : {
+    "Away to win both halves" : {
         "title" : "Away To Win Both Halves",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "Home To Win Either Half" : {
+    "Home to win either half" : {
         "title" : "Home To Win Either Half",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "Away To Win Either Half" : {
+    "Away to win either half" : {
         "title" : "Away To Win Either Half",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "Highest Scoring Half" : {
+    "Highest scoring half" : {
         "title" : "Highest Scoring Half",
-        "1ère Mi-temps" : "1st",
-        "2e Mi-temps" : "2e",
-        "Egalité" : "Same"
+        "1ere mi-temps" : "1st",
+        "2e mi-temps" : "2e",
+        "Egalite" : "Same"
     },
 
     "" : {
         "title" : "Home Highest Scoring Half",
-        "1ère Mi-temps" : "1st",
-        "2e Mi-temps" : "2e",
+        "1ere mi-temps" : "1st",
+        "2e mi-temps" : "2e",
         "Egalité" : "Same"
     },
 
     "" : {
         "title" : "Away Highest Scoring Half",
-        "1ère Mi-temps" : "1st",
-        "2e Mi-temps" : "2e",
+        "1ere mi-temps" : "1st",
+        "2e mi-temps" : "2e",
         "Egalité" : "Same"
     },
 

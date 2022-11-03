@@ -43,7 +43,7 @@ def MatchsLinksScrap(pattern): #OKAY
     return links
 
 
-def build_match(url_match):
+def build_match(url_match, name_league):
     #Get soup
     soup = BeautifulSoup(get_page(url_match), 'html.parser')
     soup =  soup.find('div', id='event')
@@ -103,32 +103,35 @@ def build_match(url_match):
 
     bets_replace = {}
     for i, (betTitle, outcomes) in enumerate(bets.items()):
-        betTitle_replace = betTitle.replace(competitorName1, 'Home')
-        betTitle_replace = betTitle_replace.replace(competitorName2, 'Away')
+        betTitle_replace = Important_Class.format_name_g(betTitle)
+        betTitle_replace = Important_Class.format_name(betTitle_replace, competitorName1, competitorName2, bookmaker, name_league)
         outcomes_replace = {}
         if betTitle_replace in trad_bets.keys() :
             for i, (outcome_name, odd) in enumerate(outcomes.items()):
-                outcome_name_replace = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
-
-                outcome_name_replace = trad_bets[betTitle_replace][outcome_name_replace]
+                outcome_name_replace = Important_Class.format_name_g(outcome_name)
+                outcome_name_replace_old = outcome_name_replace
+                outcome_name_replace = Important_Class.format_name(outcome_name_replace, competitorName1, competitorName2, bookmaker, name_league)
+                outcome_name_replace = Important_Class.check_outcome(betTitle_replace, competitorName1, competitorName2, outcome_name_replace, outcome_name_replace_old, trad_bets, bookmaker, name_league)
                 outcomes_replace[outcome_name_replace] = odd
             betTitle_replace = trad_bets[betTitle_replace]["title"]
             bets_replace[betTitle_replace] = outcomes_replace
-    match = Important_Class.Match(competitorName1, competitorName2, bets_replace)
+
+    match = Important_Class.Match(competitorName1, competitorName2, bets_replace, url_match)
+
+    if Important_Class.debug:
+        Important_Class.Match.show(match)
+    
+        
     return match
 
 
-def get_league_matches(pattern):
+def get_league_matches(pattern, name_league):
     matches = []
     links = MatchsLinksScrap(pattern)
-    d = len(links)
-    n = 1
     for link in links :
         url_match = link
-        match = build_match(url_zebet + url_match)
+        match = build_match(url_zebet + url_match, name_league)
         matches.append(match)
-        print(f"Zebet avancement : {100*n/d}%")
-        n += 1
     return matches
 
 
@@ -179,26 +182,26 @@ trad_bets = {
         "Away" : "Away"
     },
 
-    "Double Chance" : {
+    "Double Chance0" : {
         "title" : "Double Chance",
         "1N" : "Home ou Match nul",
         "12" : "Home ou Away",
         "N2" : "Match nul ou Away"
     },
 
-    "Qui va gagner le match ? (remboursé si match nul)" : {
+    "Qui va gagner le match ? (rembourse si match nul)" : {
         "title" : "Draw No Bet",
         "Home" : "Home",
         "Away" : "Away"
     },
 
-    "Les 2 équipes marquent ?" : {
+    "Les 2 equipes marquent ?" : {
         "title" : "Both Teams To Score",
         "Oui" : "Oui",
         "Non" : "Non"
     },
 
-    "Qui va gagner la 1ère mi-temps ?" : {
+    "Qui va gagner la 1ere mi-temps ?" : {
         "title" : "1st Half - 1x2",
         "Home" : "Home",
         "Nul" : "Nul",
@@ -238,26 +241,26 @@ trad_bets = {
 
     "Mi-temps avec le plus de buts ?" : {
         "title" : "Highest Scoring Half",
-        "1ère" : "1st",
-        "2ème" : "2e",
+        "1ere" : "1st",
+        "2eme" : "2e",
         "Autant" : "Same"
     },
 
     "Mi-temps avec le plus de buts pour Home ?" : {
         "title" : "Home Highest Scoring Half",
-        "1ère" : "1st",
-        "2ème" : "2e",
+        "1ere" : "1st",
+        "2eme" : "2e",
         "Autant" : "Same"
     },
 
     "Mi-temps avec le plus de buts pour Away ?" : {
         "title" : "Away Highest Scoring Half",
-        "1ère" : "1st",
-        "2ème" : "2e",
+        "1ere" : "1st",
+        "2eme" : "2e",
         "Autant" : "Same"
     },
 
-    "Les 2 équipes marquent en 1ère mi-temps ?" : {
+    "Les 2 equipes marquent en 1ere mi-temps ?" : {
         "title" : "1st Half - Both Teams To Score",
         "Oui" : "Oui",
         "Non" : "Non"
