@@ -78,10 +78,17 @@ def finder(bets_arrange):
                 
                 ratio = calcul_arbitrage(test_arbitrage) 
                 if ratio != None:
-                    str =   f"******************************************************* \n League {name_league} \n pour le match {match.get_name()} \n Ratio de {ratio} \n pour le bet {betTitle} \n avec les odds {test_arbitrage} \n Viens parier idiots {match.url}"
+                    str =   [ratio,f"******************************************************* \n League {name_league} \n pour le match {match.get_name()} \n Ratio de {ratio} \n pour le bet {betTitle} \n avec les odds {test_arbitrage} \n Viens parier idiots {match.url}"]
                     findings.append(str)
-    return findings
+    
+    findings = sorted(findings, key=getKey)
+    findings_sort = []
+    for ele in findings:
+        findings_sort.append(ele[1])
+    return findings_sort
 
+def getKey(element):
+    return element[0]
 
 def best_odd(odds):
     best_odd = None

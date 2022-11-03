@@ -91,7 +91,7 @@ def build_match(url_match, name_league):
                             outcome = outcome[0]
                             outcome_name = Important_Class.format_name_g(outcome['name'])
                             outcome_name_old = outcome_name 
-                            outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+                            outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker, name_league)
                             odd = outcome['odds']
                             outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker, name_league)
                             outcomes[outcome_name] = odd
@@ -110,7 +110,11 @@ def get_league_matches(pattern, name_league):
     links = MatchsLinksScrap(pattern)
     for link in links :
         url_match = url_betclic + link
-        match = build_match(url_match, name_league)
+        try : 
+            match = build_match(url_match, name_league)
+        except requests.exceptions.ReadTimeout:
+            print(f"Timeout match {url_match}")
+            pass
         matches.append(match)
     return matches
 

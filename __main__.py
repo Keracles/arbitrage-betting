@@ -1,6 +1,9 @@
 import sys, time, traceback, f_annex.param as param
 from f_annex import mail, exceptions, surebets_finder
 from bookmakers import unibet, betclic, winamax, zebet, netbet
+import logging
+from datetime import datetime
+import requests
 
 bookmakers = [unibet, betclic, winamax, zebet, netbet]
 
@@ -18,10 +21,13 @@ def get_foot_bookmakers(bookmaker):
 
                 except KeyboardInterrupt :
                     raise
+            
+                except requests.exceptions.ReadTimeout:
+                    print(f"Timeout league {bookmaker.bookmaker}-{name_league}")
 
-                except :
-                    print(f"Erreur dans cette ligue {bookmaker.bookmaker}/{name_league} pour l'erreur {sys.exc_info()}"
-                    + f"\n Traceback : {traceback.format_exc()}")
+                """except :
+                    logging.debug(f"Erreur dans cette ligue {bookmaker.bookmaker}/{name_league} pour l'erreur {sys.exc_info()}"
+                    + f"\n Traceback : {traceback.format_exc()}")"""
                 
 
 
@@ -38,6 +44,8 @@ def get_foot():
     return bet_bible
 
 if __name__ == "__main__":
+    d = datetime.now()
+    logging.basicConfig(filename=f"logs/{d.strftime('%Y-%m-%d_%H-%M')}.log", encoding='utf-8', level=logging.INFO)
     try :
         bet_bible = get_foot()
     except :
@@ -56,5 +64,7 @@ if __name__ == "__main__":
             print("Voici les surebets trouvés :")
             for str in findings:
                 print(str)
+            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%H-%M')} Surebets trouvés - Arbitrage-Betting Robot", mail.creation_mail(findings))
         else :
+            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%H-%M')} Rien du tout - Arbitrage-Betting Robot", "Pas de Surebets trouvés. Idiots")
             print("Pas de Surebets trouvés. Idiots")

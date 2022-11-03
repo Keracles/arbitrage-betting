@@ -108,7 +108,11 @@ def get_league_matches(pattern, name_league):
     links = MatchsLinksScrap(pattern)
     for link in links :
         url_match =link
-        match = build_match(url_netbet + url_match, name_league)
+        try : 
+            match = build_match(url_match, name_league)
+        except requests.exceptions.ReadTimeout:
+            print(f"Timeout match {url_match}")
+            pass
         matches.append(match)
     return matches
 

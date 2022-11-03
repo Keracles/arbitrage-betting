@@ -62,8 +62,10 @@ def format_replace(bookmaker, str, name_league):
     elif bookmaker == "betclic" : 
         loaded_dict = trad_betclic
 
+    if name_league not in loaded_dict.keys():
+        loaded_dict[name_league] = {}
 
-    for cle, valeur in loaded_dict.items():
+    for cle, valeur in loaded_dict[name_league].items():
         str = str.replace(cle, valeur)
     return str
 
@@ -108,6 +110,8 @@ def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outc
                     loaded_dict = pickle.load(f)
                     f.close()
                 with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                    if name_league not in loaded_dict.keys():
+                        loaded_dict[name_league] = {}
                     loaded_dict[name_league][outcome_name_old] = competitorName2
                     pickle.dump(loaded_dict, f)
                     f.close()
@@ -117,11 +121,13 @@ def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outc
                     loaded_dict = pickle.load(f)
                     f.close()
                 with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                    if name_league not in loaded_dict.keys():
+                        loaded_dict[name_league] = {}
                     loaded_dict[name_league][outcome_name_old] = competitorName1
                     pickle.dump(loaded_dict, f)
                     f.close()
             actualisation_trad(bookmaker)
-            outcome_name = format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+            outcome_name = format_name(outcome_name, competitorName1, competitorName2, bookmaker, name_league)
             k+=1
         except :
             raise
@@ -155,6 +161,7 @@ def actualisation_trad(bookmaker):
         with open(r'bookmakers\trad_bookmakers\zebet.pkl', 'rb') as f:
             trad_zebet = pickle.load(f)
             f.close()
+    
 
 #Traduction
 trad_unibet = {}

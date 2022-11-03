@@ -99,7 +99,11 @@ def get_league_matches(api_league, name_league):
     links = MatchsLinksScrap(api_league)
     for link in links :
         url_match = url_unibet + link
-        match = build_match(url_match, name_league)
+        try : 
+            match = build_match(url_match, name_league)
+        except requests.exceptions.ReadTimeout:
+            print(f"Timeout match {url_match}")
+            pass
         matches.append(match)
     return matches
 
