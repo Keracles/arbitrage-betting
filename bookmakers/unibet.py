@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-from w3lib.html import replace_entities
 from requests_html import HTMLSession
 from bookmakers import Important_Class
 import json
@@ -71,34 +70,40 @@ def build_match(url_match):
                         outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
                         odd = round((float(outcome['currentPriceUp'])/int(outcome['currentPriceDown'])) + 1, 2)
 
-                        try :
-                            outcome_name = trad_bets[betTitle][outcome_name]
-                            outcomes[outcome_name] = odd
-                        except KeyError : 
-                            print(f"KEY ERROR SPOTTED, str rentré {outcome_name_old}, Transformé en {outcome_name} Team en présence : {competitorName1} et {competitorName2}")
-                            s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
-                            s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
-                            if s2.ratio() > s1.ratio() :
-                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                    loaded_dict = pickle.load(f)
-                                    f.close()
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                    loaded_dict[outcome_name_old] = competitorName2
-                                    pickle.dump(loaded_dict, f)
-                                    f.close()
-                            else :
-                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                    loaded_dict = pickle.load(f)
-                                    f.close()
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                    loaded_dict[outcome_name_old] = competitorName2
-                                    pickle.dump(loaded_dict, f)
-                                    f.close()
-                            Important_Class.actualisation_trad(bookmaker)
-                        except :
-                            raise
+
+                        boucle = True
+
+                        while boucle :
+                            try :
+                                outcome_name = trad_bets[betTitle][outcome_name]
+                                outcomes[outcome_name] = odd
+                                boucle = False
+                            except KeyError : 
+                                print("33[1;31;40m KEY ERROR SPOTTED  n")
+                                print(f"pour le bet {betTitle}, \n Team en présence : {competitorName1} et {competitorName2} \n str rentré {outcome_name_old}, \n Transformé en {outcome_name}")
+                                s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
+                                s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
+                                if s2.ratio() > s1.ratio() :
+                                    print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
+                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                                        loaded_dict = pickle.load(f)
+                                        f.close()
+                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                                        loaded_dict[outcome_name_old] = competitorName2
+                                        pickle.dump(loaded_dict, f)
+                                        f.close()
+                                else :
+                                    print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
+                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                                        loaded_dict = pickle.load(f)
+                                        f.close()
+                                    with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                                        loaded_dict[outcome_name_old] = competitorName1
+                                        pickle.dump(loaded_dict, f)
+                                        f.close()
+                                Important_Class.actualisation_trad(bookmaker)
+                            except :
+                                raise
 
 
 

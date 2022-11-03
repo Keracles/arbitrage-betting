@@ -1,20 +1,17 @@
-from socket import timeout
 import requests
 import json
 from bookmakers import Important_Class
-from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
-from difflib import SequenceMatcher
-import pickle
+
 
 
 
 ################################################################################################################################################################
                             #Globals variables#
 
-debug = False
-bookmaker ='winamax'
+debug = True
+bookmaker = 'winamax'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 url_winamax = 'https://www.winamax.fr'
 pattern_ligue1 = "/paris-sportifs/sports/1/7/4"
@@ -75,7 +72,8 @@ def build_match(url_match):
         outcomes_id = json["bets"][bet_id]["outcomes"]
 
         if debug :
-            print("Balise 1 : ", betTitle)
+            #print("Balise 1 : ", betTitle)
+            a=1
 
         if len(outcomes_id) <= nb_outcome :
             if betTitle in trad_bets.keys() : 
@@ -86,35 +84,8 @@ def build_match(url_match):
                         outcome_name = Important_Class.format_name(outcome_name, competitorName1, competitorName2, bookmaker)
                         odd = round(float(json["odds"][outcome_id]),2)
 
-
-                        try :
-                            outcome_name = trad_bets[betTitle][outcome_name]
-                            outcomes[outcome_name] = odd
-                        except KeyError : 
-                            print(f"KEY ERROR SPOTTED, \n pour le bet {betTitle}, \n Team en présence : {competitorName1} et {competitorName2} \n str rentré {outcome_name_old}, \n Transformé en {outcome_name}")
-                            s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
-                            s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
-                            if s2.ratio() > s1.ratio() :
-                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                    loaded_dict = pickle.load(f)
-                                    f.close()
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                    loaded_dict[outcome_name_old] = competitorName2
-                                    pickle.dump(loaded_dict, f)
-                                    f.close()
-                            else :
-                                print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
-                                    loaded_dict = pickle.load(f)
-                                    f.close()
-                                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
-                                    loaded_dict[outcome_name_old] = competitorName2
-                                    pickle.dump(loaded_dict, f)
-                                    f.close()
-                            Important_Class.actualisation_trad(bookmaker)
-                        except :
-                            raise
+                        outcome_name = Important_Class.check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker)
+                        outcomes[outcome_name] = odd
 
                         
                 betTitle = trad_bets[betTitle]["title"]
@@ -124,6 +95,9 @@ def build_match(url_match):
     if debug :
         Important_Class.Match.show(match)
     return match
+
+
+
 
 
 def get_league_matches(pattern):
@@ -159,7 +133,7 @@ pattern_foot = {
     "ecosse" : "/paris-sportifs/sports/1/22/54",
     "espagne-1" : "/paris-sportifs/sports/1/32/36",
     "espagne-2" : "/paris-sportifs/sports/1/32/37",
-    "usa" : "/paris-sportifs/sports/1/26/7048",
+    "usa" : "/paris-sportifs/sports/1/26/18",
     "europe-1" : "/paris-sportifs/sports/1/800000542/23",
     "europe-2" : "/paris-sportifs/sports/1/800000542/10909",
     "france-1" : "/paris-sportifs/sports/1/7/4",

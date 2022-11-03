@@ -1,7 +1,7 @@
 import pickle
 
 bookmaker = "winamax"
-creation = True
+creation = False
 
 if creation :
     pickle_out = open(f'bookmakers\\trad_bookmakers\\{bookmaker}.pkl',"wb")
@@ -13,4 +13,5 @@ with open(f'bookmakers\\trad_bookmakers\\{bookmaker}.pkl', 'rb') as f:
     f.close()
 
 print(loaded_dict)
+
 

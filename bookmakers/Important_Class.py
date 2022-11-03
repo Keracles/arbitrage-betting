@@ -1,5 +1,7 @@
 import unidecode
 import pickle
+from difflib import SequenceMatcher
+import os 
 ######################################################## CLASSES ########################################################
 
 class Match :
@@ -15,7 +17,7 @@ class Match :
         print(f"Match : {self.eq1} vs {self.eq2} \n Bets : \n {self.bets}")
         return 
 
-    
+ #Format des strings   
 def format_espace(str):
     new_str = ""
     for mot in str.split(" "):
@@ -24,6 +26,8 @@ def format_espace(str):
     return new_str
 
 def format_name_g(str):
+    if str == None :
+        return None 
     str = unidecode.unidecode(str)
     str = str.strip()
     str = str.lower()
@@ -62,6 +66,46 @@ def format_name(str, competitorName1, competitorName2, bookmaker):
 
     return str
 
+#Check des trads
+def check_outcome(betTitle, competitorName1, competitorName2, outcome_name, outcome_name_old, trad_bets, bookmaker):
+    boucle = True
+                        
+    while boucle :
+        try :
+            outcome_name = trad_bets[betTitle][outcome_name]
+            boucle = False
+        except KeyError : 
+            print("-------------------------------------- KEY ERROR SPOTTED ---------------------------------------------")
+            print(f"pour le bet {betTitle}, \n Team en présence : {competitorName1} et {competitorName2} \n str rentré {outcome_name_old}, \n Transformé en {outcome_name}")
+            s1 = SequenceMatcher(None, outcome_name_old, competitorName1)
+            s2 = SequenceMatcher(None, outcome_name_old, competitorName2)
+            if s2.ratio() > s1.ratio() :
+                print(f"On rajoute la règle : {outcome_name_old} en {competitorName2}")
+                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                    loaded_dict = pickle.load(f)
+                    f.close()
+                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                    loaded_dict[outcome_name_old] = competitorName2
+                    pickle.dump(loaded_dict, f)
+                    f.close()
+            else :
+                print(f"On rajoute la règle : {outcome_name_old} en {competitorName1}")
+                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'rb') as f:
+                    loaded_dict = pickle.load(f)
+                    f.close()
+                with open(f'bookmakers\\trad_bookmakers\{bookmaker}.pkl', 'wb') as f:
+                    loaded_dict[outcome_name_old] = competitorName1
+                    pickle.dump(loaded_dict, f)
+                    f.close()
+            actualisation_trad(bookmaker)
+            outcome_name = format_name(outcome_name, competitorName1, competitorName2, bookmaker)
+        except :
+            raise
+    return outcome_name
+
+
+
+#Traduction
 trad_unibet = {}
 trad_winamax = {}
 trad_betclic = {}
@@ -95,4 +139,3 @@ def actualisation_trad(bookmaker):
             f.close()
 
 actualisation_trad("all")
-print("ImportantClass read")
