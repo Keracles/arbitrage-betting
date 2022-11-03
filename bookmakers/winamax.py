@@ -103,7 +103,7 @@ def get_league_matches(pattern, name_league):
     matches = []
     links = MatchsLinksScrap(pattern)
     for link in links:
-        url = url_winamax + link
+        url_match = url_winamax + link
         try : 
             match = build_match(url_match, name_league)
         except requests.exceptions.ReadTimeout:
