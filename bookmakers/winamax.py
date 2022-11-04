@@ -110,7 +110,8 @@ def get_league_matches(pattern, name_league):
             print(f"Timeout match {url_match}")
         except :
             logging.warning(f"Erreur {bookmaker} / match {url_match}"+f"\n Traceback : {traceback.format_exc()}")
-        matches.append(match)
+        else:
+            matches.append(match)
     return matches
 
 

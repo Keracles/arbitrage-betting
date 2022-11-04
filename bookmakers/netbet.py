@@ -108,14 +108,15 @@ def get_league_matches(pattern, name_league):
     matches = []
     links = MatchsLinksScrap(pattern)
     for link in links :
-        url_match =link
+        url_match = url_netbet + link
         try : 
             match = build_match(url_match, name_league)
         except requests.exceptions.ReadTimeout:
             print(f"Timeout match {url_match}")
         except :
             logging.warning(f"Erreur {bookmaker} / match {url_match}"+f"\n Traceback : {traceback.format_exc()}")
-        matches.append(match)
+        else:
+            matches.append(match)
     return matches
 
 

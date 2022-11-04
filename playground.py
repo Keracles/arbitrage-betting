@@ -1,5 +1,5 @@
 import copy
-
+from difflib import SequenceMatcher
 pattern_bets = {
     "1x2" : {
         "Home" : None,
@@ -74,3 +74,5 @@ pattern_bets = {
     }
 }
 
+s1 =SequenceMatcher(None, "Levadiakos", "Panathinaikos")
+print(s1.ratio())

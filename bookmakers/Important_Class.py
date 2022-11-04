@@ -26,7 +26,7 @@ class Match :
     def comparaison(match1, match2):
         s1 = SequenceMatcher(None, match1.home, match2.home)
         s2 = SequenceMatcher(None, match1.away, match2.away)
-        if s1.ratio() > 0.7 and s2.ratio() > 0.5:
+        if s1.ratio() > 0.7 and s2.ratio() > 0.7:
             return True
         else :
             return False 
