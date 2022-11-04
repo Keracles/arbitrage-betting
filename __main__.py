@@ -24,10 +24,10 @@ def get_foot_bookmakers(bookmaker):
             
                 except requests.exceptions.ReadTimeout:
                     print(f"Timeout league {bookmaker.bookmaker}-{name_league}")
-
-                """except :
-                    logging.debug(f"Erreur dans cette ligue {bookmaker.bookmaker}/{name_league} pour l'erreur {sys.exc_info()}"
-                    + f"\n Traceback : {traceback.format_exc()}")"""
+                
+                except :
+                    print(f"Erreur dans cette ligue {bookmaker.bookmaker}/{name_league} pour l'erreur {sys.exc_info()}")
+                    logging.warning(f"Erreur dans cette ligue {bookmaker.bookmaker}/{name_league} pour l'erreur {sys.exc_info()}"+f"\n Traceback : {traceback.format_exc()}")
                 
 
 
@@ -45,7 +45,7 @@ def get_foot():
 
 if __name__ == "__main__":
     d = datetime.now()
-    logging.basicConfig(filename=f"logs/{d.strftime('%Y-%m-%d_%H-%M')}.log", encoding='utf-8', level=logging.INFO)
+    logging.basicConfig(filename=f"logs/{d.strftime('%Y-%m-%d_%H-%M')}.log", encoding='utf-8', level=logging.WARNING)
     try :
         bet_bible = get_foot()
     except :

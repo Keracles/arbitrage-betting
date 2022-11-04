@@ -4,7 +4,7 @@ from w3lib.html import replace_entities
 from requests_html import HTMLSession
 import re
 from bookmakers import Important_Class
-
+import logging, traceback
 
 ################################################################################################################################################################
                             #Globals variables#
@@ -134,7 +134,8 @@ def get_league_matches(pattern, name_league):
             match = build_match(url_match, name_league)
         except requests.exceptions.ReadTimeout:
             print(f"Timeout match {url_match}")
-            pass
+        except :
+           logging.warning(f"Erreur {bookmaker} / match {url_match}"+f"\n Traceback : {traceback.format_exc()}")
         matches.append(match)
     return matches
 
