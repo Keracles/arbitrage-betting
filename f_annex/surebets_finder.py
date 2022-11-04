@@ -30,15 +30,15 @@ def merge_dict(bet_bible):
                                             match_global.bets[betTitle][outcome_name][bookmaker] = match_bookmaker.bets[betTitle][outcome_name]
                                         else :
                                             match_global.bets[betTitle][outcome_name][bookmaker] = None
-                            else :
-                                for outcome_name, outcome_odd in outcomes.items():
-                                    match_global.bets[betTitle][outcome_name][bookmaker] = None
-                            match_global.url.append(match_bookmaker.url)
+                                else :
+                                    for outcome_name, outcome_odd in outcomes.items():
+                                        match_global.bets[betTitle][outcome_name][bookmaker] = None
+                                match_global.url.append(match_bookmaker.url)
 
                         else :
                             match = crea_match_global(bookmaker, match_bookmaker)
                             matchs_ajout.append(match)
-                bets_arrange[name_league] + matchs_ajout
+                            bets_arrange[name_league] + matchs_ajout
 
     return bets_arrange
 
