@@ -64,7 +64,7 @@ if __name__ == "__main__":
             print("Voici les surebets trouvés :")
             for str in findings:
                 print(str)
-            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%H-%M')} Surebets trouvés - Arbitrage-Betting Robot", mail.creation_mail(findings))
+            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%Hh%M')} Surebets trouvés - Arbitrage-Betting Robot", mail.creation_mail(findings))
         else :
-            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%H-%M')} Rien du tout - Arbitrage-Betting Robot", "Pas de Surebets trouvés. Idiots")
+            mail.envoie_mail("keracles10@gmail.com", f"{d.strftime('%m-%d_%Hh%M')} Rien du tout - Arbitrage-Betting Robot", "Pas de Surebets trouvés. Idiots")
             print("Pas de Surebets trouvés. Idiots")
