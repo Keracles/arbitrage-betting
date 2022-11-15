@@ -13,7 +13,7 @@ url_zebet = 'https://www.zebet.fr'
 pattern_ligue1 = "/fr/competition/96-ligue_1_uber_eats"
 pattern_pl = '/fr/competition/94-premier_league'
 url_match_test = 'https://www.zebet.fr/fr/event/m2ai2-lens_toulouse'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 nb_outcome = 3
 ################################################################################################################################################################
                                 #Fonctions utiles#

@@ -12,7 +12,7 @@ bookmaker = "betclic"
 url_betclic = 'https://www.betclic.fr'                    
 pattern_ligue1 = "/football-s1/ligue-1-uber-eats-c4"
 url_match_test = 'betclic.fr/football-s1/ligue-1-uber-eats-c4/lens-toulouse-m3001559137'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 nb_outcome = 3
 ################################################################################################################################################################
                                 #Fonctions utiles#

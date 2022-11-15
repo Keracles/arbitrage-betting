@@ -11,7 +11,7 @@ import logging, traceback
                             #Globals variables#
 
 bookmaker = 'winamax'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 url_winamax = 'https://www.winamax.fr'
 pattern_ligue1 = "/paris-sportifs/sports/1/7/4"
 url_match_test = 'https://www.winamax.fr/paris-sportifs/match/34172247'
@@ -28,7 +28,7 @@ def get_page(url):
 def get_json(url_match):
     html = get_page(url_match)
     split1 = html.split("var PRELOADED_STATE =")[1]
-    split2 = split1.split(";</script>")[0]
+    split2 = split1.split("</script>")[0]
     return json.loads(split2)
 
 ################################################################################################################################################################

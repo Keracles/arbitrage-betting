@@ -53,13 +53,13 @@ if __name__ == "__main__":
         raise
 
     else :
-        if param.remote :
-            contenu = f"Le scrapping c'est bien passe a {time.localtime()}"
-            mail.envoie_mail("keracles10@gmail.com", contenu)
+        logging.warning(f"Voici ")
 
         bets_arrange = surebets_finder.merge_dict(bet_bible)
         findings = surebets_finder.finder(bets_arrange)
 
+
+        logging.warning(f"Voici les bets arrangés {bets_arrange}")
         if len(findings) != 0 :
             print("Voici les surebets trouvés :")
             for str in findings:

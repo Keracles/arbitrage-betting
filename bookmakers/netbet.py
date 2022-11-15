@@ -15,7 +15,7 @@ pattern_ligue1 = "/football/france/ligue-1-uber-eats/"
 pattern_pl = "/football/angleterre/premier-league/"
 pattern_israel = '/football/israel/ligat-ha-al/'
 url_match_test = 'https://www.netbet.fr/football/france/ligue-1-uber-eats/lens-toulouse'
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
 nb_outcome = 3
 ################################################################################################################################################################
                                 #Fonctions utiles#

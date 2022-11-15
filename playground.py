@@ -1,5 +1,13 @@
 import copy
 from difflib import SequenceMatcher
+import requests
+
+from bookmakers import unibet, Important_Class
+import os 
+
+
+print(os.path.abspath(r'bookmakers\trad_bookmakers\unibet.pkl'))
+
 pattern_bets = {
     "1x2" : {
         "Home" : None,
@@ -74,5 +82,8 @@ pattern_bets = {
     }
 }
 
-s1 =SequenceMatcher(None, "Levadiakos", "Panathinaikos")
-print(s1.ratio())
+"""url = "https://www.enligne.parionssport.fdj.fr/paris-football/france/ligue-1-uber-eats/2926369/lorient-vs-paris-sg"
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0 Win64 x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'}
+
+r = requests.get(url, headers=headers)
+print(r.text)"""
