@@ -143,23 +143,23 @@ def actualisation_trad(bookmaker):
     global trad_unibet, trad_winamax, trad_betclic, trad_netbet, trad_zebet
 
     if bookmaker == "unibet" or bookmaker == "all" :
-        with open(os.path.abspath(r'bookmakers\trad_bookmakers\unibet.pkl'), 'rb') as f:
+        with open(os.path.join('bookmakers/trad_bookmakers/unibet.pkl'), 'rb') as f:
             trad_unibet = pickle.load(f)
             f.close()
     if bookmaker == "winamax" or bookmaker == "all" :
-        with open(os.path.abspath(r'bookmakers\trad_bookmakers\winamax.pkl'), 'rb') as f:
+        with open(os.path.join('bookmakers/trad_bookmakers/winamax.pkl'), 'rb') as f:
             trad_winamax = pickle.load(f)
             f.close()
     if bookmaker == "betclic" or bookmaker == "all" :
-        with open(os.path.abspath(r'bookmakers\trad_bookmakers\betclic.pkl'), 'rb') as f:
+        with open(os.path.join('bookmakers/trad_bookmakers/betclic.pkl'), 'rb') as f:
             trad_betclic = pickle.load(f)
             f.close()
     if bookmaker == "netbet" or bookmaker == "all" :
-        with open(os.path.abspath(r'bookmakers\trad_bookmakers\netbet.pkl'), 'rb') as f:
+        with open(os.path.join('bookmakers/trad_bookmakers/netbet.pkl'), 'rb') as f:
             trad_netbet = pickle.load(f)
             f.close()
     if bookmaker == "zebet" or bookmaker == "all" :
-        with open(os.path.abspath(r'bookmakers\trad_bookmakers\zebet.pkl'), 'rb') as f:
+        with open(os.path.abspath('bookmakers/trad_bookmakers/zebet.pkl'), 'rb') as f:
             trad_zebet = pickle.load(f)
             f.close()
     
